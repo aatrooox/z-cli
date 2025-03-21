@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v0.5.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.5...v0.5.0)
+
+### 🚀 Enhancements
+
+- 增加i18n命令；提取vue中的国际化配置 ([9777990](https://github.com/aatrooox/z-cli/commit/9777990))
+
+### 📖 Documentation
+
+- 更新i18n说明 ([141d8f3](https://github.com/aatrooox/z-cli/commit/141d8f3))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.4.5
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.4...v0.4.5)

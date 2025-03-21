@@ -174,7 +174,7 @@ function startTranslate(limitedWords, cb) {
           : word.value;
           if (res.error_code) {
             const spinner = ora();
-            spinner.warn('翻译出错：' + JSON.stringify(res))
+            spinner.warn(`翻译[${word.value}]时出错：` + JSON.stringify(res))
           }
         word.value = translate_result;
       });

@@ -8,6 +8,7 @@
 
 ## 功能一览
 
+- `i18n`: 提取 `.vue` 文件中的 `i18n` 语法
 - `translate`: 国际化文件翻译 (英译中)
 - `tiny`: 压缩文件。基于sharpjs, sharp支持的文件都可以压缩
 - `picgo`: 通过 Picgo 上传到图床
@@ -27,6 +28,15 @@
 ```shell
 npm i -g @zzclub/z-cli
 ```
+
+## i18n 规则说明
+
+1. 只提取 `.vue` 文件
+2. 匹配规则，如：$t('i18n.module-name.placeholder.month') => `/\$t\(['"]i18n\.([^'"]+)['"]\)/g`
+   1. 默认忽略 common。如 $t('i18n.common.placeholder.month') 会被忽略
+   2. 以逗号分割，第一位 i18n 是固定的。 第二位为 文件名。 最后一位为属性key。 第二至最后之间，为 object 的 key
+   3. 最后的文件名称为 `module-name.js` 内容为 `{ placeholder: { month: "month"}} `
+   4. 保存位置如果没传。就会保存在 `.vue` 同级目录下
 
 ## 翻译功能配置说明
 ### 初始化翻译平台appId和key

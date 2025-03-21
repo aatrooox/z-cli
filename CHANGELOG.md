@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.4.5
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.4...v0.4.5)
+
+### 🩹 Fixes
+
+- Env ignore ([535fc54](https://github.com/aatrooox/z-cli/commit/535fc54))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.4.4
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.3...v0.4.4)

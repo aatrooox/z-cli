@@ -11,7 +11,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/aatrooox/zzoffduty-cli.git"
+    "url": "git+https://github.com/aatrooox/z-cli.git"
   },
   "keywords": [
     "cli",
@@ -25,11 +25,10 @@
   ],
   "scripts": {
     "release": "pnpm release:patch",
-    "release:patch": "npx changelogen@latest --patch --release --push",
-    "release:minor": "npx changelogen@latest --minor --release --push",
-    "release:major": "npx changelogen@latest --major --release --push",
-    "release:main": "npx changelogen@latest -r v1.0.0 --release --push",
-    "publish": "npm publish"
+    "release:patch": "npx changelogen@latest --patch --release --push --publish",
+    "release:minor": "npx changelogen@latest --minor --release --push --publish",
+    "release:major": "npx changelogen@latest --major --release --push --publish",
+    "release:main": "npx changelogen@latest -r v1.0.0 --release --push --publish"
   },
   "engines": {
     "node": ">=18.18.0"

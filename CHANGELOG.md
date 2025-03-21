@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.4
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.3...v0.5.4)
+
+### 🚀 Enhancements
+
+- 增加node版本提示 ([5eb02cb](https://github.com/aatrooox/z-cli/commit/5eb02cb))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.5.3
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.2...v0.5.3)

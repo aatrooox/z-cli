@@ -1,4 +1,4 @@
-import { writeFileContent, getLocalConfig } from "../utils/common.js";
+import { writeFileContent, getLocalConfig, setLocalConfig } from "../utils/common.js";
 import chalk from "chalk";
 import ora from "ora";
 import path from "node:path";
@@ -23,24 +23,14 @@ export const setCmd = {
         if (payload.length === 2) {
           let key = payload[0];
           if (!["account.key", "account.appId"].includes(key)) {
-            set_spinner.warn(`设置appId: zz set translate appId <value>`);
-            set_spinner.warn(`设置key: zz set translate key <value>`);
+            set_spinner.warn(`设置appId: zz set translate account.appId <value>`);
+            set_spinner.warn(`设置key: zz set translate account.key <value>`);
             process.exit(1);
           }
           let value = payload[1];
           eval(`configItem.${key} = "${value}"`);
           // configItem[key] = value
-          let configContent = JSON.stringify(config, null, 2);
-          writeFileContent(
-            path.resolve(__dirname, "../config.json"),
-            configContent,
-            (spinner, isOk) => {
-              if (isOk) {
-              } else {
-                spinner.fail("配置失败");
-              }
-            }
-          );
+          setLocalConfig(config, set_spinner)
         } else {
           set_spinner.warn(`设置appId: zz set translate account.appId <value>`);
           set_spinner.warn(`设置key: zz set translate account.key <value>`);

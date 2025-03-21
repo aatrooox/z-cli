@@ -68,14 +68,14 @@ const i18nCmd = {
           for (const file of filePaths) {
             const content = fs.readFileSync(file, 'utf-8');
             const fileName = path.basename(file, '.vue');
-            const i18nKeys = extractI18nKeys(content);
+            const { keys: i18nKeys, commentMap } = extractI18nKeys(content);
             
             if (i18nKeys.length > 0) {
               file_spinner.succeed(`从 ${chalk.yellow(fileName)} 中提取了 ${chalk.green(i18nKeys.length)} 个国际化键值`);
               
               // 处理每个提取的键值
               for (const key of i18nKeys) {
-                await processI18nKey(key, i18nMap);
+                await processI18nKey(key, i18nMap, commentMap);
               }
             }
           }
@@ -109,7 +109,7 @@ const i18nCmd = {
       
       const content = fs.readFileSync(filePath, 'utf-8');
       const fileName = path.basename(filePath, '.vue');
-      const i18nKeys = extractI18nKeys(content);
+      const { keys: i18nKeys, commentMap } = extractI18nKeys(content);
       
       if (i18nKeys.length > 0) {
         const i18nMap = {};
@@ -118,7 +118,7 @@ const i18nCmd = {
         
         // 处理每个提取的键值
         for (const key of i18nKeys) {
-          await processI18nKey(key, i18nMap);
+          await processI18nKey(key, i18nMap, commentMap);
         }
         
         // 如果没有指定输出目录，使用当前处理的文件所在目录
@@ -163,25 +163,81 @@ function getAllVueFiles(dirPath, filePaths) {
  * 从 Vue 文件内容中提取国际化键值
  * @param {string} content 文件内容
  * @param {string} ignorePrefix 要忽略的前缀
- * @returns {Array} 提取的键值数组
+ * @returns {Object} 提取的键值数组和注释映射
  */
 function extractI18nKeys(content, ignorePrefix = "common") {
+  // 原有正则表达式，提取键名
   const regex = /\$t\(['"]i18n\.([^'"]+)['"]\)/g;
+  // 提取键名和注释中的中文
+  const regexWithComment = /\$t\(['"]i18n\.([^'"]+)['"]\)[\s,]*\/\/\s*([\u4e00-\u9fa5].*?)(?=\n|$)/g;
+  // 新增：提取HTML注释中的i18n信息
+  const regexHtmlComment = /<!--i18n\s+(.*?)-->/g;
+  
   const keys = [];
+  const commentMap = {}; // 存储键名和对应的注释内容
   let match;
   
-  while ((match = regex.exec(content)) !== null) {
+  // 提取HTML注释中的i18n信息
+  while ((match = regexHtmlComment.exec(content)) !== null) {
+    const commentContent = match[1].trim();
+    // 解析注释内容中的多个键值对
+    const keyValuePairs = commentContent.split(/\s+/);
+    
+    for (const pair of keyValuePairs) {
+      const [key, value] = pair.split('=');
+      if (key && value) {
+        // 将简短键（如addTitle）与完整键（如monthlyForecast.pageTitle.addTitle）进行匹配
+        // 这里我们需要在后续处理中找到对应的完整键
+        commentMap[key] = value;
+      }
+    }
+  }
+  
+  // 提取带注释的国际化键
+  while ((match = regexWithComment.exec(content)) !== null) {
     const key = match[1];
+    const comment = match[2].trim();
+    
     // 如果设置了忽略前缀且键以该前缀开头，则跳过
     if (ignorePrefix && key.startsWith(`${ignorePrefix}.`)) {
       continue;
     }
+    
     keys.push(key);
+    // JS注释优先级高于HTML注释
+    commentMap[key] = comment;
+    
+    // 同时为简短键名存储注释
+    const shortKey = key.split('.').pop();
+    if (!commentMap[shortKey]) {
+      commentMap[shortKey] = comment;
+    }
   }
   
-  return [...new Set(keys)]; // 去重
+  // 提取不带注释的国际化键
+  while ((match = regex.exec(content)) !== null) {
+    const key = match[1];
+    
+    // 如果设置了忽略前缀且键以该前缀开头，则跳过
+    if (ignorePrefix && key.startsWith(`${ignorePrefix}.`)) {
+      continue;
+    }
+    
+    keys.push(key);
+    
+    // 检查是否有对应的HTML注释
+    const shortKey = key.split('.').pop();
+    if (commentMap[shortKey] && !commentMap[key]) {
+      commentMap[key] = commentMap[shortKey];
+    }
+  }
+  
+  // 返回去重后的键名数组和注释映射
+  return {
+    keys: [...new Set(keys)],
+    commentMap
+  };
 }
-
 function unquoteKeys(json) {
   return json.replace(/"(\\[^]|[^\\"])*"\s*:?/g, function (match) {
     if (/:$/.test(match)) {
@@ -196,8 +252,9 @@ function unquoteKeys(json) {
  * 处理单个国际化键值
  * @param {string} key 键值
  * @param {Object} i18nMap 国际化映射对象
+ * @param {Object} commentMap 注释映射
  */
-async function processI18nKey(key, i18nMap) {
+async function processI18nKey(key, i18nMap, commentMap = {}) {
   // 解析键值 fee-forecast-maintain.placeholder.yearNum
   const parts = key.split('.');
   
@@ -223,8 +280,8 @@ async function processI18nKey(key, i18nMap) {
 
   // 设置最终的键值
   if (!current[lastKey]) {
-    // 使用键名作为默认值
-    current[lastKey] = lastKey;
+    // 如果有注释，使用注释作为值，否则使用键名
+    current[lastKey] = commentMap[key] || lastKey;
   }
 }
 

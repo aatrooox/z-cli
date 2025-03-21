@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.6.2
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.6.1...v0.6.2)
+
+### 🚀 Enhancements
+
+- I18n 缩写；更新文档 ([2662396](https://github.com/aatrooox/z-cli/commit/2662396))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.6.1
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.6.0...v0.6.1)

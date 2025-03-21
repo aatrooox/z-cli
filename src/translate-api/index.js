@@ -4,13 +4,14 @@ import { readJsonFile } from "../utils/file.js";
 import axios from "axios";
 import { dirname } from "node:path"
 import { fileURLToPath } from "node:url"
+import { getLocalConfig } from "../utils/common.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 let salt = new Date().getTime();
 let appid, key;
 async function genUser() {
-  let config = await readJsonFile(path.resolve(__dirname, "../config.json"));
+  let config = await getLocalConfig();
   let translateConfig = config.translate;
   appid = translateConfig.account.appId; // appid
   key = translateConfig.account.key; // 密钥

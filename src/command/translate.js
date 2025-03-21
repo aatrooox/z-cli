@@ -172,6 +172,10 @@ function startTranslate(limitedWords, cb) {
         let translate_result = res.trans_result
           ? res.trans_result[0].dst
           : word.value;
+          if (res.error_code) {
+            const spinner = ora();
+            spinner.warn('翻译出错：' + JSON.stringify(res))
+          }
         word.value = translate_result;
       });
       curIndex++;

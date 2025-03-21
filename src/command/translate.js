@@ -5,12 +5,10 @@ import { translate } from "../translate-api/index.js";
 import { readJsonFile } from "../utils/file.js";
 import { writeFileContent, getLocalConfig } from "../utils/common.js";
 import ora from "ora";
-// const { log } = require("../utils/common");
 
-// let config: { translate: any } = await getLocalConfig();
-// const translateConfig = config.translate;
 const translateCmd = {
   name: "translate",
+  alias: "trans",
   description: "中译英功能,支持批量和单个文件翻译",
   // options: ['-l, --language <language>', '转换为什么语言, 支持[zh]和[en]', 'en'],
   options: [
@@ -33,11 +31,12 @@ const translateCmd = {
   action: async (option) => {
     let filePath = option.file;
     let dirPath = option.dir;
-
+    let file_spinner = ora();
     if (!filePath && !dirPath) {
+      file_spinner.fail('请指定文件或目录')
       process.exit(1);
     }
-    let file_spinner = ora();
+    
     let config = await getLocalConfig();
     const translateConfig = config.translate;
     if (!translateConfig.account.appId || !translateConfig.account.key) {

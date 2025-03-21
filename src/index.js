@@ -8,7 +8,7 @@ import { setCmd } from "./command/set.js";
 import { tinyCmd } from "./command/tiny.js";
 import { picgoCmd } from "./command/picgo.js";
 import { checkUpdate } from './utils/common.js'
-
+ import { i18nCmd } from "./command/i18n.js";
 const program = new Command();
 
 initProgram(program, async () => {
@@ -21,6 +21,6 @@ initProgram(program, async () => {
 
   registerCommand(program, tinyCmd);
   registerCommand(program, picgoCmd);
-
+  registerCommand(program, i18nCmd)
   program.parse(process.argv);
 });

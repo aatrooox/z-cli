@@ -9,6 +9,10 @@ const __dirname = dirname(__filename);
 export const registerCommand = (program, config) => {
   let app = program.command(config.name).description(config.description);
 
+  if (config.alias) {
+    app.alias(config.alias);
+  }
+  
   config.options.forEach((option) => {
     app.option(option.flags, option.description, option.defaultValue);
   });

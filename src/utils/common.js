@@ -198,3 +198,21 @@ export async function checkUpdate() {
       // 静默处理错误
     }
 }
+
+
+export async function checkNodeVersion() {
+  const currentNodeVersion = process.versions.node;
+  const semver = currentNodeVersion.split('.');
+  const major = parseInt(semver[0], 10);
+  const minor = parseInt(semver[1], 10);
+
+  if (major < 18 || (major === 18 && minor < 18)) {
+    console.error(
+      chalk.red('\n❌ Node版本过低：') +
+      chalk.yellow('建议升级到 ') + 
+      chalk.green('18.18.0') + 
+      chalk.yellow(' 或更高版本。\n') +
+      chalk.gray('当前版本：') + chalk.red(currentNodeVersion) 
+    );
+  }
+}

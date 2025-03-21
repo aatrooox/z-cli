@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.2
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.1...v0.5.2)
+
+### 🩹 Fixes
+
+- 翻译功能bug ([603625c](https://github.com/aatrooox/z-cli/commit/603625c))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.5.1
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.0...v0.5.1)

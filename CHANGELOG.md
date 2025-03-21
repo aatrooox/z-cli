@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.1
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.0...v0.5.1)
+
+### 🩹 Fixes
+
+- 修复config设置 ([94318e3](https://github.com/aatrooox/z-cli/commit/94318e3))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.5.0
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.5...v0.5.0)

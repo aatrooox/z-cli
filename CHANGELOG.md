@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.4.4
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.3...v0.4.4)
+
+### 🚀 Enhancements
+
+- 增加版本更新检测机制 ([d8876d3](https://github.com/aatrooox/z-cli/commit/d8876d3))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.4.3
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.4.2...v0.4.3)

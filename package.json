@@ -1,6 +1,6 @@
 {
   "name": "@zzclub/z-cli",
-  "version": "0.4.2",
+  "version": "0.4.3",
   "description": "all-in-one 工具箱，专为提升日常及工作效率而生",
   "main": "src/index.js",
   "type": "module",

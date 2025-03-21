@@ -1,4 +1,4 @@
-import { writeFileContent, genConfig, readJsonFile } from "../utils/common.js";
+import { writeFileContent, getLocalConfig, readJsonFile, setLocalConfig } from "../utils/common.js";
 import chalk from "chalk";
 import ora from "ora";
 import path from "node:path";
@@ -30,7 +30,7 @@ export const configCmd = {
   options: [],
   action: async (configName, payload, cmd) => {
     let config_spinner = ora();
-    let config = await genConfig();
+    let config = await getLocalConfig();
     let filePath = payload[0];
     switch (configName) {
       // 导出config
@@ -73,11 +73,8 @@ export const configCmd = {
               }
               let localConfig = await readJsonFile(filePath);
               let result = Object.assign({}, config, localConfig);
-              fs.writeFileSync(
-                path.resolve(__dirname, "../config.json"),
-                JSON.stringify(result, null, 2),
-                "utf-8"
-              );
+              
+              setLocalConfig(result, config_spinner)
               config_spinner.succeed(`导入配置成功!`);
             } else {
               config_spinner.fail(`不存在的文件路径: [${filePath}]`);
@@ -88,14 +85,8 @@ export const configCmd = {
         }
         process.exit(1);
       case "reset":
-        let defaultConfig = await readJsonFile(
-          path.resolve(__dirname, "../config.default.json")
-        );
-        fs.writeFileSync(
-          path.resolve(__dirname, "../config.json"),
-          JSON.stringify(defaultConfig, null, 2),
-          "utf-8"
-        );
+        //重置
+        setLocalConfig({}, config_spinner)
         config_spinner.succeed(`已重置为默认配置!`);
         process.exit(1);
     }

@@ -1,6 +1,6 @@
 import {
   writeFileContent,
-  genConfig,
+  getLocalConfig,
   setHighLightStr,
 } from "../utils/common.js";
 import {
@@ -50,7 +50,7 @@ export const picgoCmd = {
   ],
   action: async (option, test) => {
     const spinner = ora();
-    const config = await genConfig();
+    const config = await getLocalConfig();
     const { file, dir, condition, tinyFiles } = option;
 
     if (!file && !dir && !condition && (!tinyFiles || !tinyFiles.length)) {

@@ -4,13 +4,45 @@ import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 import path from "node:path";
 import chalk from "chalk";
+import os from "node:os";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-export async function genConfig(configPath) {
-  let _path = configPath || path.join(__dirname, "../config.json");
-  let config = await readJsonFile(_path);
-  // console.log(path.resolve(__dirname, "../config.json"));
+export const defaultConfig = {
+  "translate": {
+    "sourceDirName": "zh-CN",
+    "targetDirName": "en-US",
+    "ignoreFiles": ["node_modules"],
+    "account": {
+      "appId": "",
+      "key": ""
+    }
+  },
+  "editableConfig": ["translate"]
+}
+
+export async function getLocalConfig() {
+  let spinner = ora();
+  const homeDir = os.homedir();
+  const configDir = path.join(homeDir, '.zzclub-z-cli');
+  const configPath = path.join(configDir, 'config.json');
+  let config = {}
+  if (fs.existsSync(configPath)) {
+    try {
+      const content = fs.readFileSync(configPath, 'utf8');
+      config = JSON.parse(content);
+    } catch (err) {
+      spinner.fail('读取配置文件失败:' + JSON.stringify(err));
+      process.exit(1);
+    }
+  } else {
+    spinner.warn('未找到配置文件，正在初始化默认配置');
+
+   
+
+    config = setLocalConfig(defaultConfig, spinner);
+  }
+
   return config;
 }
 
@@ -33,20 +65,7 @@ export function writeFileContent(filePath, fileContent, onFinally = () => {}) {
     }
   });
 }
-//   log: {
-//     ...genLogOptions(),
-//   },
 
-// function genLogOptions() {
-//   let options = Object.keys(emoji);
-//   let logFns: any = {};
-//   options.forEach((key) => {
-//     logFns[key] = (info: string) => {
-//       console.log(`${emoji[key]}  ` + info);
-//     };
-//   });
-//   return logFns;
-// }
 export const readJsonFile = async (filePath) => {
   let jsonData;
   try {
@@ -67,3 +86,45 @@ export const setHighLightStr = (
   if (index === -1) return sourceText;
   return sourceText.replaceAll(hightlightText, chalkFn(hightlightText));
 };
+
+// 
+export async function setLocalConfig(newConfig = {}, spinner) {
+  const homeDir = os.homedir();
+  const configDir = path.join(homeDir, '.zzclub-z-cli');
+  const configPath = path.join(configDir, 'config.json');
+  
+  // 确保配置目录存在
+  if (!fs.existsSync(configDir)) {
+    fs.mkdirSync(configDir, { recursive: true });
+  }
+
+  // 读取已存在的配置
+  let config = {};
+  if (fs.existsSync(configPath)) {
+    try {
+      const content = fs.readFileSync(configPath, 'utf8');
+      config = JSON.parse(content);
+    } catch (err) {
+      spinner && spinner.fail('读取配置文件失败')
+      process.exit(1);
+    }
+  }
+
+  config = {
+    ...config,
+    ...newConfig,
+    translate: {
+      ...config.translate,
+      ...newConfig.translate,
+      account: {
+        ...(config.translate?.account || {}),
+        ...newConfig.translate.account,
+      }
+    }
+  };
+
+  // 保存配置
+  fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
+  spinner && spinner.succeed(`配置文件已更新：${chalk.yellow(configPath)}`)
+  return config;
+}

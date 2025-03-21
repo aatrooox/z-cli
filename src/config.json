@@ -2,7 +2,7 @@
   "translate": {
     "sourceDirName": "zh-CN",
     "targetDirName": "en-US",
-    "dirBlackList": [
+    "ignoreFiles": [
       "node_modules"
     ],
     "account": {

@@ -1,34 +1,38 @@
 {
-  "name": "zzoffduty-cli",
+  "name": "@zzclub/z-cli",
   "version": "0.4.0",
-  "description": "work tool fun",
+  "description": "all-in-one 工具箱，专为提升日常及工作效率而生",
   "main": "src/index.js",
   "type": "module",
-  "author": "zzdaddy",
+  "author": "aatrox",
   "bin": {
-    "mechine": "src/index.js",
+    "z": "src/index.js",
     "zz": "src/index.js"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/zzdaddy/zzoffduty-cli.git"
+    "url": "git+https://github.com/aatrooox/zzoffduty-cli.git"
   },
   "keywords": [
     "cli",
     "zz",
-    "zaozao",
-    "zzoffduty"
+    "zzclub",
+    "node",
+    "sharp",
+    "translate",
+    "picgo",
+    "tool"
   ],
   "scripts": {
-    "init": "npm run sync",
-    "sync": "node ./build/syncLocal.js",
-    "reset": "node ./build/beforeGitPush.js && git add . && git commit -m \"reset config\" && git push",
-    "release:patch": "npm run reset && npm version patch && npm publish",
-    "release:minor": "npm run reset && npm version minor && npm publish",
-    "release:major": "npm run reset && npm version major && npm publish"
+    "release": "pnpm release:patch",
+    "release:patch": "npx changelogen@latest --patch --release --push",
+    "release:minor": "npx changelogen@latest --minor --release --push",
+    "release:major": "npx changelogen@latest --major --release --push",
+    "release:main": "npx changelogen@latest -r v1.0.0 --release --push",
+    "publish": "npm publish"
   },
   "engines": {
-    "node": ">=16.0.0"
+    "node": ">=18.18.0"
   },
   "license": "MIT",
   "dependencies": {

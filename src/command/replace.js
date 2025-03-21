@@ -1,6 +1,6 @@
 import {
   writeFileContent,
-  genConfig,
+  getLocalConfig,
   setHighLightStr,
 } from "../utils/common.js";
 import {
@@ -56,7 +56,7 @@ export const replaceCmd = {
   ],
   action: async (option) => {
     const spinner = ora();
-    const config = await genConfig();
+    const config = await getLocalConfig();
     const { text, newText, file } = option;
 
     if (!text && !newText && !file) {

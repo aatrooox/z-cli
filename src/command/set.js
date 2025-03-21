@@ -1,9 +1,10 @@
-import { writeFileContent, genConfig } from "../utils/common.js";
+import { writeFileContent, getLocalConfig } from "../utils/common.js";
 import chalk from "chalk";
 import ora from "ora";
 import path from "node:path";
 import { dirname } from "node:path";
 import { fileURLToPath } from "node:url";
+import os from 'node:os'
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -15,7 +16,7 @@ export const setCmd = {
   options: [],
   action: async (configName, payload, cmd) => {
     let set_spinner = ora();
-    let config = await genConfig();
+    let config = await getLocalConfig();
     let configItem = config[configName];
     if (configItem) {
       if (config.editableConfig.includes(configName)) {

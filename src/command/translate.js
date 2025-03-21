@@ -3,11 +3,11 @@ import fs from "node:fs";
 import chalk from "chalk";
 import { translate } from "../translate-api/index.js";
 import { readJsonFile } from "../utils/file.js";
-import { writeFileContent, genConfig } from "../utils/common.js";
+import { writeFileContent, getLocalConfig } from "../utils/common.js";
 import ora from "ora";
 // const { log } = require("../utils/common");
 
-// let config: { translate: any } = await genConfig();
+// let config: { translate: any } = await getLocalConfig();
 // const translateConfig = config.translate;
 const translateCmd = {
   name: "translate",
@@ -38,7 +38,7 @@ const translateCmd = {
       process.exit(1);
     }
     let file_spinner = ora();
-    let config = await genConfig();
+    let config = await getLocalConfig();
     const translateConfig = config.translate;
     if (!translateConfig.account.appId || !translateConfig.account.key) {
       file_spinner.fail("请先设置appId和key后再使用翻译功能");
@@ -284,7 +284,7 @@ function getAllFilePaths(translateConfig, dirPath, filePaths) {
             targetPath,
           });
         });
-      } else if (!translateConfig.dirBlackList.includes(file)) {
+      } else if (!translateConfig.ignoreFiles.includes(file)) {
         getAllFilePaths(translateConfig, filePath, filePaths);
       }
     }

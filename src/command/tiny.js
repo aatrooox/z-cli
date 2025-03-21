@@ -1,6 +1,6 @@
 import {
   writeFileContent,
-  genConfig,
+  getLocalConfig,
   setHighLightStr,
 } from "../utils/common.js";
 
@@ -93,7 +93,7 @@ export const tinyCmd = {
   ],
   action: async (option) => {
     let spinner = ora();
-    let config = await genConfig();
+    let config = await getLocalConfig();
     // console.log(`OPTION`, option);
     let { type, file, dir, condition, quality, colours } = option;
 

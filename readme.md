@@ -31,12 +31,95 @@ npm i -g @zzclub/z-cli
 
 ## i18n 规则说明
 
-1. 只提取 `.vue` 文件
-2. 匹配规则，如：$t('i18n.module-name.placeholder.month') => `/\$t\(['"]i18n\.([^'"]+)['"]\)/g`
-   1. 默认忽略 common。如 $t('i18n.common.placeholder.month') 会被忽略
-   2. 以逗号分割，第一位 i18n 是固定的。 第二位为 文件名。 最后一位为属性key。 第二至最后之间，为 object 的 key
-   3. 最后的文件名称为 `module-name.js` 内容为 `{ placeholder: { month: "month"}} `
-   4. 保存位置如果没传。就会保存在 `.vue` 同级目录下
+### 文件
+
+只提取 `.vue` 文件
+
+### `$t`解析及生成规则
+
+提取正则： `/\$t\(['"]i18n\.([^'"]+)['"]\)/g`
+
+举例：
+
+```js
+$t('i18n.module-name.placeholder.month')
+```
+
+- module-name 会被解析为文件名称 => `module-name.js`
+- 后面的内容会被解析为对象的属性 => `{ placeholder: { month: "month"}} `
+- 保存位置如果没传。就会保存在 `.vue` 同级目录下
+- 默认忽略 module-name 为 `common` => `$t('i18n.common.xxx')`
+
+### 中文注释规范及提取规则
+
+```vue
+<template>
+  <!--i18n addTitle=你好呀 a=不错   b=叭叭叭 c=哈哈哈  -->
+  <CommonEditForm :page-type="pageType" :title-config="titleConfig" :custom-components-code="$t('i18n.monthlyForecast.pageTitle.addTitle')" :is-out="2">
+    <div>{{ $t('i18n.monthlyForecast.form.a') }}</div>
+    <div>{{ $t('i18n.monthlyForecast.form.b') }}</div>
+    <!--i18n select=真棒 -->
+    <div>{{ $t('i18n.monthlyForecast.placeholder.select') }}</div>
+  </CommonEditForm>
+
+</template>
+
+<!-- js 区域 -->
+<script>
+   import {formatDate} from "@/common/utils"
+   import CommonEditForm from "@/pages/ifpf/costForecast/monthlyForecast/views/common-edit-form.vue"
+
+   export default {
+       name: 'ifpfExchangeRateMaintainAdd',
+       components:{
+           CommonEditForm,
+       },
+       data() {
+           return {
+               pageType: 'edit',
+               titleConfig: {
+                   title: this.$t('i18n.monthlyForecast.pageTitle.addTitle'),//测试
+                   icon: this.$t('i18n.monthlyForecast.pageTitle.icon'), // 图标
+                   date: formatDate.formatDateOnly(new Date()),
+                   info: this.$t('i18n.monthlyForecast.pageTitle.addInfo')//你好
+               },
+           };
+       }
+   };
+</script>
+
+```
+
+解析后：
+
+```js
+export default {
+  pageTitle: {
+    addTitle: "测试",
+    icon: "图标",
+    addInfo: "你好"
+  },
+  form: {
+    a: "不错",
+    b: "叭叭叭"
+  },
+  placeholder: {
+    select: "真棒"
+  }
+}
+```
+- template 中的注释，比如以 `<!--i18n` 开头
+- template 中的中文内容以 `空格` 分割，以 `=` 号拼接key=value, 如 `addTitle=你好呀 a=不错`
+- template 中支持多个注释信息
+- template 中的key=value和$t中最后一个key对应
+- js 中支持两种注释信息提取
+  - `$t()` 后紧跟 `//` , `//`后的中文内容都被视为默认值
+  - `$t()` 后存在 `,` 、`空格` 这两种符号，然后再跟 `//`, `//`后的中文内容都被视为默认值
+
+**解析完成后，自行把文件挪到到 zh-CN 文件夹下**
+
+**然后使用 `translate` 命令进行中译英**
+
 
 ## 翻译功能配置说明
 ### 初始化翻译平台appId和key
@@ -131,8 +214,10 @@ zz translate -d ./demo
     ├── test2.js
     └── test3.js
 
-
 ```
+
+**翻译时可能存在翻译失败的情况，重新运行  translate 命令即可**
+
 ## 压缩图片
 
 使用help命令查看所有支持的功能

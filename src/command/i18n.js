@@ -5,7 +5,7 @@ import ora from "ora";
 
 const i18nCmd = {
   name: "i18n",
-  aliases: ["i"],
+  alias: "i",
   description: "从 Vue 文件中生成国际化配置文件",
   options: [
     {

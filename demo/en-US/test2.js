@@ -7,7 +7,7 @@ export default {
   test: {
     a: {
       b: {
-        c: "Hahaha"
+        c: "Ha ha ha"
       }
     },
     aaa: {

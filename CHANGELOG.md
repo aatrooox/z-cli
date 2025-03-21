@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.6.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.4...v0.6.0)
+
+### 🚀 Enhancements
+
+- 改造i18n，使其能够直接提取中文 ([bb05eac](https://github.com/aatrooox/z-cli/commit/bb05eac))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.5.4
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.3...v0.5.4)

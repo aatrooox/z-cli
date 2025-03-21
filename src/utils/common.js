@@ -5,6 +5,8 @@ import { fileURLToPath } from "node:url";
 import path from "node:path";
 import chalk from "chalk";
 import os from "node:os";
+import latestVersion from 'latest-version';
+
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
@@ -127,4 +129,72 @@ export async function setLocalConfig(newConfig = {}, spinner) {
   fs.writeFileSync(configPath, JSON.stringify(config, null, 2));
   spinner && spinner.succeed(`配置文件已更新：${chalk.yellow(configPath)}`)
   return config;
+}
+
+
+// 获取 package.json
+export function getPackageJson() {
+  try {
+    const rootDir = path.resolve(__dirname, '../../');
+    const packagePath = path.join(rootDir, 'package.json');
+    const content = fs.readFileSync(packagePath, 'utf8');
+    return JSON.parse(content);
+  } catch (err) {
+    console.error('读取 package.json 失败:', err);
+    return null;
+  }
+}
+
+
+// 检查版本更新
+// ... 其他代码保持不变 ...
+
+// 检查版本更新
+export async function checkUpdate() {
+  // 获取缓存目录
+  const homeDir = os.homedir();
+  const cacheDir = path.join(homeDir, '.zzclub-z-cli');
+  const cacheFile = path.join(cacheDir, 'version-cache.json');
+
+  // 检查是否需要更新
+  const needCheck = () => {
+    try {
+      if (!fs.existsSync(cacheFile)) return true;
+      const cache = JSON.parse(fs.readFileSync(cacheFile, 'utf8'));
+      // 24小时内不重复检查
+      return Date.now() - cache.lastCheck > 24 * 60 * 60 * 1000;
+    } catch (err) {
+      return true;
+    }
+  };
+
+ 
+    if (!needCheck()) return;
+
+    try {
+      const pkg = getPackageJson();
+      if (!pkg) return;
+      let spinner = ora();
+      spinner.start('正在检测版本更新...')
+      const latest = await latestVersion('@zzclub/z-cli');
+      if (latest !== pkg.version) {
+        spinner.warn(chalk.yellow(`\n提示: 发现新版本 ${chalk.green(latest)}，当前版本 ${chalk.red(pkg.version)}\n`))
+      } else {
+        spinner.succeed('当前为最新版本！')
+      }
+
+      // 更新缓存
+      if (!fs.existsSync(cacheDir)) {
+        fs.mkdirSync(cacheDir, { recursive: true });
+      }
+      fs.writeFileSync(cacheFile, JSON.stringify({
+        lastCheck: Date.now(),
+        version: latest
+      }));
+
+      spinner.stop();
+      
+    } catch (err) {
+      // 静默处理错误
+    }
 }

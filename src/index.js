@@ -7,9 +7,12 @@ import { configCmd } from "./command/config.js";
 import { setCmd } from "./command/set.js";
 import { tinyCmd } from "./command/tiny.js";
 import { picgoCmd } from "./command/picgo.js";
+import { checkUpdate } from './utils/common.js'
+
 const program = new Command();
 
-initProgram(program, () => {
+initProgram(program, async () => {
+  await checkUpdate()
   registerCommand(program, translateCmd);
 
   registerCommand(program, setCmd);

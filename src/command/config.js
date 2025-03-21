@@ -45,7 +45,7 @@ export const configCmd = {
               filePath = path.resolve(
                 __dirname,
                 filePath,
-                "zzoffduty-config.json"
+                "zzclub-z-cli.json"
               );
               fs.writeFileSync(
                 filePath,

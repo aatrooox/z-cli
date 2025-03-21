@@ -46,7 +46,7 @@ export const tinyCmd = {
     {
       flags: "-q, --quality <quality>",
       description: "压缩质量(1-100)",
-      defaultValue: 65,
+      defaultValue: 75,
     },
     {
       flags: "-c, --colours <colours>",

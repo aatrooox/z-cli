@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.5.3
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.2...v0.5.3)
+
+### 🩹 Fixes
+
+- 优化提示 ([5d8e6f6](https://github.com/aatrooox/z-cli/commit/5d8e6f6))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.5.2
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.5.1...v0.5.2)

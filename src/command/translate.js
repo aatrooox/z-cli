@@ -169,13 +169,13 @@ function startTranslate(limitedWords, cb) {
           console.log(err);
         });
 
-        let translate_result = res.trans_result
-          ? res.trans_result[0].dst
+        let translate_result = res?.trans_result
+          ? res?.trans_result[0].dst
           : word.value;
-          if (res.error_code) {
-            const spinner = ora();
-            spinner.warn(`翻译[${word.value}]时出错：` + JSON.stringify(res))
-          }
+        if (res?.error_code || !res) {
+          const spinner = ora();
+          spinner.warn(`翻译[${word.value}]时出错：` + JSON.stringify(res))
+        }
         word.value = translate_result;
       });
       curIndex++;

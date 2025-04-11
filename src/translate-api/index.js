@@ -22,27 +22,56 @@ function genSign(options) {
   return sign;
 }
 
+// export async function translate(options) {
+//   await genUser();
+//   return new Promise((resolve, reject) => {
+//     axios({
+//       url: "http://api.fanyi.baidu.com/api/trans/vip/translate",
+//       method: "get",
+//       params: {
+//         q: options.query,
+//         appid: appid,
+//         salt: salt,
+//         from: options.from,
+//         to: options.to,
+//         sign: genSign(options),
+//       },
+//     })
+//       .then((res) => {
+//         console.log(res);
+//         resolve(res.data);
+//       })
+//       .catch((err) => {
+//         reject("翻译失败" + JSON.stringify(err));
+//       })
+//       .finally(() => {});
+//   });
+// }
+
 export async function translate(options) {
   await genUser();
-  return new Promise((resolve, reject) => {
-    axios({
-      url: "http://api.fanyi.baidu.com/api/trans/vip/translate",
-      method: "get",
-      params: {
-        q: options.query,
-        appid: appid,
-        salt: salt,
-        from: options.from,
-        to: options.to,
-        sign: genSign(options),
-      },
-    })
-      .then((res) => {
-        resolve(res.data);
-      })
-      .catch((err) => {
-        reject("翻译失败");
-      })
-      .finally(() => {});
-  });
+  
+  try {
+    const params = new URLSearchParams({
+      q: options.query,
+      appid: appid,
+      salt: salt,
+      from: options.from,
+      to: options.to,
+      sign: genSign(options)
+    });
+    
+    const url = `http://api.fanyi.baidu.com/api/trans/vip/translate?${params}`;
+    const response = await fetch(url);
+    
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+    
+    const data = await response.json();
+    // console.log(data);
+    return data;
+  } catch (error) {
+    throw new Error("翻译失败" + JSON.stringify(error));
+  }
 }

@@ -1,17 +1,17 @@
 export default {
-    isok: "Leave work early",
-    common: {
-        listTitle: "title",
-        addTitle: "test"
+  isok: "Get off work early",
+  common: {
+    listTitle: "title",
+    addTitle: "test"
+  },
+  test: {
+    a: {
+      b: {
+        c: "Ha ha ha"
+      }
     },
-    test: {
-        a: {
-            b: {
-                c: "Hahaha"
-            }
-        },
-        aaa: {
-            value: "input"
-        }
+    aaa: {
+      value: "input"
     }
+  }
 }

@@ -1,6 +1,25 @@
 # Changelog
 
 
+## v0.7.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.6.2...v0.7.0)
+
+### 🚀 Enhancements
+
+- 剔除axios改为原生fetch ([6ca4bda](https://github.com/aatrooox/z-cli/commit/6ca4bda))
+
+### 🏡 Chore
+
+- **release:** V0.7.0 ([2c21466](https://github.com/aatrooox/z-cli/commit/2c21466))
+- **release:** V0.8.0 ([61441e4](https://github.com/aatrooox/z-cli/commit/61441e4))
+- **release:** V0.7.1 ([3044a7f](https://github.com/aatrooox/z-cli/commit/3044a7f))
+- Rollback ([f348572](https://github.com/aatrooox/z-cli/commit/f348572))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.7.1
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.8.0...v0.7.1)

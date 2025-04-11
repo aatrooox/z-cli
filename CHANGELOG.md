@@ -1,6 +1,18 @@
 # Changelog
 
 
+## v0.8.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.7.1...v0.8.0)
+
+### 🩹 Fixes
+
+- 翻译目标文件类型校验 ([cc87490](https://github.com/aatrooox/z-cli/commit/cc87490))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.7.1
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.7.0...v0.7.1)

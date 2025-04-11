@@ -2,10 +2,6 @@
 
 **这是一个效率类命令行工具, 为了解决工作中或个人开发过程中的重复或繁琐问题**
 
- node >= 18.18.0 
- 
- 推荐版本(我的)：`20.18.1` 
-
 ## 功能一览
 
 - `i18n`: 提取 `.vue` 文件中的 `i18n` 语法
@@ -20,14 +16,57 @@
 **特别注意:**
 **tiny命令不再支持和picgo联动, 仅支持压缩后,自动替换一下md文件里的图片链接, 之后的操作可以用obsidian里的插件[image auto upload Plugin]完成~~**
 
-
 ## 安装
 
-`1.0.0` 之前的版本都为不稳定版本
+> 对于不擅长nodejs的使用者更推荐使用 `bun`
+
+### Node
+
+使用 `nvm` 管理多个 `node` 版本
+
+ `node >= 18.18.0` 
+ 
+ 推荐版本(我的)：`20.18.1` 
+
+查看 `registry` （非必要步骤）
+
+```bash
+npm config get registry
+# https://registry.npmjs.org
+# 如果不是，则需要先设置
+npm config set registry=https://registry.npmjs.org
+```
+
+安装最新版
 
 ```shell
 npm i -g @zzclub/z-cli
 ```
+
+安装后只能在当前 `node` 版本下使用，切换到其他低版本 `node` 则无效
+
+全局命令为：`zz`  或 `z`
+
+### Bun
+
+macos
+```bash
+curl -fsSL https://bun.sh/install | bash
+```
+
+wind
+```bash
+powershell -c "irm bun.sh/install.ps1 | iex"
+```
+
+安装最新版
+
+```shell
+bun i -g @zzclub/z-cli
+```
+
+**如果提示缺少某个包**，可以按提示再次运行相关命令
+
 
 ## i18n 规则说明
 

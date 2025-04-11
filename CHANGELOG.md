@@ -1,6 +1,10 @@
 # Changelog
 
 
+## v0.7.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.6.2...v0.7.0)
+
 ## v0.6.2
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.6.1...v0.6.2)

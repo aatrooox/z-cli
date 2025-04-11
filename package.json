@@ -1,6 +1,6 @@
 {
   "name": "@zzclub/z-cli",
-  "version": "0.6.2",
+  "version": "0.7.0",
   "description": "all-in-one 工具箱，专为提升日常及工作效率而生",
   "main": "src/index.js",
   "type": "module",
@@ -35,7 +35,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "axios": "1.6.2",
     "chalk": "5.3.0",
     "commander": "11.0.0",
     "inquirer": "9.2.8",

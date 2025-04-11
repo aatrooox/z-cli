@@ -81,23 +81,27 @@ const translateCmd = {
     } else {
       file_spinner.succeed(`正在翻译${chalk.yellowBright(filePath)}`);
       file_spinner.start();
-      let file_content = await readAndTranslateFileContent(filePath);
-      let fileName = path.basename(filePath);
-      let dirPath = path.dirname(filePath);
-      let newFileName =
-        fileName.split(".")[0] +
-        `-${option.language}.` +
-        fileName.split(".")[1];
-      let newFilePath = dirPath + "/" + newFileName;
-      writeFileContent(newFilePath, file_content, (spinner, isOk) => {
-        if (isOk) {
-          spinner.succeed("翻译结束");
-        } else {
-          spinner.fail("翻译失败!");
-        }
+      if (filePath.endsWith(".js") || filePath.endsWith(".ts")) {
+        let file_content = await readAndTranslateFileContent(filePath);
+        let fileName = path.basename(filePath);
+        let dirPath = path.dirname(filePath);
+        let newFileName =
+          fileName.split(".")[0] +
+          `-${option.language}.` +
+          fileName.split(".")[1];
+        let newFilePath = dirPath + "/" + newFileName;
+        writeFileContent(newFilePath, file_content, (spinner, isOk) => {
+          if (isOk) {
+            spinner.succeed("翻译结束");
+          } else {
+            spinner.fail("翻译失败!");
+          }
 
-        file_spinner.stop();
-      });
+          file_spinner.stop();
+        });
+      } else {
+        file_spinner.fail("无效的文件");
+      }
     }
   },
 };
@@ -280,12 +284,15 @@ function getAllFilePaths(translateConfig, dirPath, filePaths) {
         // 找到目标文件夹, 获取所有文件
         let files = fs.readdirSync(filePath);
         files.forEach((file) => {
-          let jsPath = path.join(filePath, file);
-          let targetPath = path.join(dirPath, translateConfig.targetDirName);
-          filePaths.push({
-            sourcePath: jsPath,
-            targetPath,
-          });
+          // 判断文件是否是以.js或.ts结尾
+          if (file.endsWith(".js") || file.endsWith(".ts")) {
+            let jsPath = path.join(filePath, file);
+            let targetPath = path.join(dirPath, translateConfig.targetDirName);
+            filePaths.push({
+              sourcePath: jsPath,
+              targetPath,
+            });
+          }
         });
       } else if (!translateConfig.ignoreFiles.includes(file)) {
         getAllFilePaths(translateConfig, filePath, filePaths);

@@ -1,6 +1,22 @@
 # Changelog
 
 
+## v1.0.1
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v1.0.0...v1.0.1)
+
+### 📖 Documentation
+
+- Simplify Skills integration guide ([ce67727](https://github.com/aatrooox/z-cli/commit/ce67727))
+
+### 🏡 Chore
+
+- 移除无用代码; 更新文档 ([a60da1e](https://github.com/aatrooox/z-cli/commit/a60da1e))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v1.0.0
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.8.0...v1.0.0)

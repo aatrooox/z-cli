@@ -1,6 +1,18 @@
 # Changelog
 
 
+## vv1.0.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v0.8.0...vv1.0.0)
+
+### 💅 Refactors
+
+- Migrate to TypeScript 1.0.0 - Rewrite entire codebase in TypeScript - Remove translate, picgo, i18n commands - Focus on image compression only - Add Bun support - Update README with latest features and Skills integration guide ([c289717](https://github.com/aatrooox/z-cli/commit/c289717))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v0.8.0
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v0.7.1...v0.8.0)

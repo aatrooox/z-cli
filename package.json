@@ -39,10 +39,10 @@
     "type-check": "bun run tsc --noEmit",
     "prepublishOnly": "bun run type-check && bun run build",
     "release": "bun run release:patch",
-    "release:patch": "bunx changelogen@latest --patch --release --push --publish",
-    "release:minor": "bunx changelogen@latest --minor --release --push --publish",
-    "release:major": "bunx changelogen@latest --major --release --push --publish",
-    "release:main": "bunx changelogen@latest -r 1.0.0 --release --push --publish"
+    "release:patch": "bunx changelogen@latest --patch --release --push",
+    "release:minor": "bunx changelogen@latest --minor --release --push",
+    "release:major": "bunx changelogen@latest --major --release --push",
+    "release:main": "bunx changelogen@latest -r 1.0.0 --release --push"
   },
   "engines": {
     "node": ">=18.18.0",

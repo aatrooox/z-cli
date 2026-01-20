@@ -1,6 +1,6 @@
 {
   "name": "@zzclub/z-cli",
-  "version": "v1.0.0",
+  "version": "1.0.0",
   "description": "all-in-one 工具箱，专为提升日常及工作效率而生",
   "main": "./dist/index.js",
   "type": "module",
@@ -42,7 +42,7 @@
     "release:patch": "bunx changelogen@latest --patch --release --push --publish",
     "release:minor": "bunx changelogen@latest --minor --release --push --publish",
     "release:major": "bunx changelogen@latest --major --release --push --publish",
-    "release:main": "bunx changelogen@latest -r v1.0.0 --release --push --publish"
+    "release:main": "bunx changelogen@latest -r 1.0.0 --release --push --publish"
   },
   "engines": {
     "node": ">=18.18.0",

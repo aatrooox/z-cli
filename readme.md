@@ -222,104 +222,73 @@ z config --reset
 }
 ```
 
-## 🔌 Skills 集成指南
+## 🔌 在 Skills 中使用
 
-如果你想在 OpenCode Skills 或其他自动化工具中使用 z-cli，可以通过以下方式集成：
+如果你想在 OpenCode Skills 或其他自动化脚本中使用 z-cli,推荐使用 `bunx` 或 `npx` 调用。
 
-### 方式 1: 直接调用命令
+### 前置要求
 
-```typescript
-// 在 skill 中使用 bash 工具调用
-import { bash } from './tools';
+确保已安装 Bun 或 Node.js:
 
-// 压缩图片
-await bash('z tiny -f ./images -r -q 85');
+```bash
+# 检查 Bun 是否安装
+bun --version
 
-// 获取配置
-await bash('z config');
+# 如果未安装,安装 Bun(推荐)
+curl -fsSL https://bun.sh/install | bash  # macOS/Linux
+# 或
+powershell -c "irm bun.sh/install.ps1 | iex"  # Windows
 ```
 
-### 方式 2: 编程调用（需要源码集成）
+### 基础用法
 
-```typescript
-// 如果需要编程式调用，可以直接导入模块
-import { ImageCompressor } from '@zzclub/z-cli/dist/commands/tiny/compressor.js';
-import { FileProcessor } from '@zzclub/z-cli/dist/commands/tiny/file-processor.js';
+```bash
+# 使用 bunx(推荐)
+bunx @zzclub/z-cli tiny -f ./images -r -q 85
 
-// 创建压缩器
-const compressor = new ImageCompressor({ quality: 80 });
-
-// 压缩单个文件
-const result = await compressor.compress('./image.jpg', './output.jpg');
-console.log(`压缩率: ${result.compressionRatio}%`);
-
-// 批量处理
-const processor = new FileProcessor(compressor, {
-  recursive: true,
-  overwrite: false,
-  outputDir: './compressed'
-});
-
-const stats = await processor.process('./images');
-console.log(`成功: ${stats.successful}, 失败: ${stats.failed}`);
+# 或使用 npx(Node.js)
+npx @zzclub/z-cli tiny -f ./images -r -q 85
 ```
 
-### 方式 3: 在 MCP Skill 中配置
+### 在 Skill 的 skill.md 中使用
 
-如果你要创建一个图片压缩 Skill，可以在 `skill.json` 中配置：
+直接在你的 Skill 说明中添加压缩命令即可:
 
-```json
-{
-  "name": "image-compressor",
-  "version": "1.0.0",
-  "description": "使用 z-cli 压缩图片",
-  "dependencies": {
-    "@zzclub/z-cli": "^1.0.0"
-  },
-  "commands": {
-    "compress": {
-      "command": "z tiny -f {{file}} -q {{quality}} {{flags}}",
-      "parameters": {
-        "file": {
-          "type": "string",
-          "required": true,
-          "description": "要压缩的文件或目录"
-        },
-        "quality": {
-          "type": "number",
-          "default": 80,
-          "description": "压缩质量 (1-100)"
-        },
-        "flags": {
-          "type": "string",
-          "default": "",
-          "description": "额外的标志，如 -r -o"
-        }
-      }
-    }
-  }
-}
+```markdown
+## 图片处理流程
+
+1. 下载图片到 `./downloads` 目录
+2. 压缩图片:
+   ```bash
+   bunx @zzclub/z-cli tiny -f ./downloads -r -q 85 --output ./compressed
+   ```
+3. 上传压缩后的图片
 ```
 
-### 方式 4: 作为子进程调用
+### 常用命令
 
-```typescript
-import { spawn } from 'child_process';
+```bash
+# 压缩单个文件
+bunx @zzclub/z-cli tiny -f ./image.jpg -q 80
 
-function compressImage(file: string, quality: number = 80): Promise<void> {
-  return new Promise((resolve, reject) => {
-    const process = spawn('z', ['tiny', '-f', file, '-q', quality.toString()]);
-    
-    process.on('close', (code) => {
-      if (code === 0) resolve();
-      else reject(new Error(`压缩失败，退出码: ${code}`));
-    });
-  });
-}
+# 递归压缩目录
+bunx @zzclub/z-cli tiny -f ./images -r -q 85
 
-// 使用
-await compressImage('./image.jpg', 85);
+# 压缩并覆盖原文件
+bunx @zzclub/z-cli tiny -f ./images -r -o
+
+# 压缩到指定目录
+bunx @zzclub/z-cli tiny -f ./images -r --output ./compressed
+
+# 查看帮助
+bunx @zzclub/z-cli --help
 ```
+
+### 优势
+
+- ✅ **自动安装依赖** - bunx/npx 会自动下载 z-cli 及其依赖(包括 Sharp)
+- ✅ **无需全局安装** - 每次运行时自动使用最新版本
+- ✅ **简单直接** - 一行命令完成压缩
 
 ## 🛠️ 开发
 

@@ -1,6 +1,18 @@
-config.default.json
+# Source files (publish compiled only)
+src/
+tsconfig.json
+*.ts
+!*.d.ts
+
+# Development files
 config.local.json
 node_modules
 demo
 .idea
 .env
+.gitignore
+.git
+
+# Build artifacts
+*.tsbuildinfo
+*.log

@@ -3,3 +3,7 @@ node_modules
 #demo
 .idea
 .env
+
+# TypeScript build output
+dist/
+*.tsbuildinfo

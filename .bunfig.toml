@@ -1,0 +1,26 @@
+# Bun configuration file
+# See: https://bun.sh/docs/runtime/bunfig
+
+[install]
+# Use exact versions for better reproducibility
+exact = true
+
+# Automatically install peer dependencies
+auto = true
+
+# Cache directory (default: ~/.bun/install/cache)
+# cache = false  # Uncomment to disable cache
+
+# Production mode configuration
+production = false
+
+[install.scopes]
+# Optional: Configure scoped registries here
+# "@zzclub" = { url = "https://registry.npmjs.org/" }
+
+[run]
+# Automatically install dependencies when running scripts
+install = true
+
+# Shell to use for shell scripts
+shell = "bash"

@@ -2,14 +2,31 @@
 
 This document provides guidelines for AI coding agents working on the `@zzclub/z-cli` project.
 
+## Project Priority
+
+**🔴 P0 - Critical Priority Project**
+
+This project is classified as **P0 (highest priority)** because:
+
+1. **Agent-First Interaction Model**: CLI is the optimal interface for AI Agent workflows. As Agent technology becomes mainstream, CLI tools serve as the primary touchpoint for human-agent collaboration.
+
+2. **Automation Gateway**: This CLI will be integrated into all future automation workflows, serving as a bridge between Agent reasoning and system operations.
+
+3. **Productivity Multiplier**: Direct CLI access enables Agents to perform complex operations (image compression, i18n management) without UI friction, dramatically increasing workflow efficiency.
+
+4. **Extensibility Foundation**: As more Agent-compatible workflows are identified, they will be integrated into this CLI, making it the central command hub for zzclub's automation ecosystem.
+
+**Strategic Goal**: Transform z-cli from a utility tool into the primary interface for Agent-driven development workflows.
+
 ## Project Overview
 
-**@zzclub/z-cli** is an all-in-one CLI toolbox for enhancing daily workflow efficiency. It provides commands for i18n extraction, translation, image compression, and PicGo integration.
+**@zzclub/z-cli** is a high-performance CLI toolbox built for Agent-driven workflows and daily efficiency enhancement. Currently focused on image compression with Sharp, designed for seamless integration into AI Agent automation pipelines.
 
-- **Language**: JavaScript (ES Modules)
-- **Runtime**: Node.js >= 18.18.0 (recommended: 20.18.1)
-- **Type**: CLI tool using Commander.js
-- **Package Manager**: pnpm (preferred), npm, or bun
+- **Language**: TypeScript (compiled to ES Modules)
+- **Runtime**: Node.js >= 18.18.0 | Bun >= 1.0.0 (primary development environment)
+- **Package Manager**: Bun 1.3.7+ (locked via `packageManager` field)
+- **Type**: Native CLI implementation with full TypeScript support
+- **Framework**: No CLI framework dependency (native implementation)
 
 ## Build, Lint, and Test Commands
 
@@ -17,11 +34,11 @@ This document provides guidelines for AI coding agents working on the `@zzclub/z
 
 ```bash
 # Release commands (version bump + publish)
-pnpm release              # Patch version bump
-pnpm release:patch        # Same as above
-pnpm release:minor        # Minor version bump
-pnpm release:major        # Major version bump
-pnpm release:main         # Release v1.0.0
+bun run release              # Patch version bump
+bun run release:patch        # Same as above
+bun run release:minor        # Minor version bump
+bun run release:major        # Major version bump
+bun run release:main         # Release v1.0.0
 
 # Manual testing (no test suite exists)
 # Test commands by running them directly:
@@ -31,286 +48,78 @@ zz <command> [options]    # Test specific commands
 
 ### Testing Individual Commands
 
-There is **no automated test suite**. Test commands manually:
-
-```bash
-# Test translate command
-zz translate -f ./demo/test.js
-
-# Test tiny command
-zz tiny -f ./demo/demo3.jpeg -q 80
-
-# Test i18n extraction
-zz i18n -f ./demo/demo.vue
-
-# Test picgo upload
-zz picgo -f ./path/to/image.png
-```
+There is **no automated test suite**. Test commands manually by running them directly with `z` or `zz` command.
 
 ### Linting and Formatting
 
-**No ESLint or Prettier configuration exists.** Follow the observed code style patterns.
+**No ESLint or Prettier configuration exists.** Follow the observed code style patterns in existing TypeScript files.
 
-## Code Style Guidelines
+## Key Architecture Decisions
 
-### Module System
+### Technology Stack
 
-- **ES Modules only** (`"type": "module"` in package.json)
-- Use `.js` extension for all JavaScript files
-- Import with explicit file extensions: `import { foo } from './bar.js'`
+- **TypeScript**: Full type safety, compile to ES Modules
+- **Consola**: Unified logging (replaces ora/chalk patterns)
+- **Sharp**: High-performance image processing
+- **No CLI Framework**: Native implementation for minimal dependencies
 
-### Imports
-
-**Standard import order:**
-
-1. Node.js built-in modules (with `node:` prefix)
-2. Third-party packages
-3. Local utilities
-4. Local command modules
-
-```javascript
-// Example from translate.js
-import path from "node:path";
-import fs from "node:fs";
-import chalk from "chalk";
-import { translate } from "../translate-api/index.js";
-import { readJsonFile } from "../utils/file.js";
-import { writeFileContent, getLocalConfig } from "../utils/common.js";
-import ora from "ora";
-```
-
-### File Naming
-
-- **Commands**: `src/command/<name>.js` (lowercase, hyphenated if needed)
-- **Utilities**: `src/utils/<name>.js` (lowercase)
-- **APIs**: `src/<feature>-api/index.js` (hyphenated feature name)
-
-### Code Conventions
-
-#### Variable Naming
-
-- **camelCase** for variables and functions: `filePath`, `getLocalConfig`
-- **UPPER_CASE** for constants: (not commonly used in this codebase)
-- Descriptive names: `statisticsCount`, `replaceMaps`, `file_spinner`
-
-#### Functions
-
-- Prefer `async/await` over Promise chains
-- Use arrow functions for callbacks: `(option) => { ... }`
-- Export named functions for commands: `export const translateCmd = { ... }`
-
-```javascript
-// Command structure pattern
-export const commandName = {
-  name: "command-name",
-  alias: "short", // optional
-  description: "What this command does",
-  options: [
-    {
-      flags: "-f, --file <file>",
-      description: "File to process",
-      defaultValue: null,
-    },
-  ],
-  action: async (option) => {
-    // Command implementation
-  },
-};
-```
-
-#### Error Handling
-
-- Use `try/catch` for async operations
-- Use `ora` spinners for user feedback:
-  - `spinner.succeed()` for success
-  - `spinner.fail()` for errors
-  - `spinner.warn()` for warnings
-- Exit with `process.exit(1)` on fatal errors
-- Provide clear error messages with `chalk` for colorization
-
-```javascript
-let spinner = ora();
-try {
-  spinner.start('Processing...');
-  // operation
-  spinner.succeed('Success message');
-} catch (err) {
-  spinner.fail('Error message: ' + err);
-  process.exit(1);
-}
-```
-
-#### User Interaction
-
-- Use `ora` for loading indicators and status messages
-- Use `chalk` for colored terminal output:
-  - `chalk.red()` - errors, warnings
-  - `chalk.green()` - success
-  - `chalk.yellow()` / `chalk.yellowBright()` - highlights, filenames
-- Use `inquirer` for interactive prompts (when needed)
-
-### File Structure
+### Project Structure
 
 ```
 src/
-├── command/          # Command implementations
-│   ├── index.js     # Command registration helpers
-│   ├── translate.js
-│   ├── tiny.js
-│   ├── picgo.js
-│   ├── i18n.js
-│   ├── set.js
-│   └── config.js
-├── utils/           # Utility functions
-│   ├── common.js    # Config, file writing, version checks
-│   ├── file.js      # File operations
-│   └── picgo.js     # PicGo HTTP client
-├── translate-api/   # Translation API integration
-│   ├── index.js
-│   └── md5.js
-├── config.json      # User config (gitignored)
-├── config.default.json # Default config template
-└── index.js         # CLI entry point (#!/usr/bin/env node)
-```
-
-## Architecture Patterns
-
-### Command Registration
-
-Commands follow a declarative pattern using `registerCommand()`:
-
-```javascript
-// In src/index.js
-import { registerCommand, initProgram } from "./command/index.js";
-import { translateCmd } from "./command/translate.js";
-
-const program = new Command();
-
-initProgram(program, async () => {
-  await checkUpdate();
-  registerCommand(program, translateCmd);
-  program.parse(process.argv);
-});
+├── commands/          # Command implementations
+│   ├── config.ts      # Config viewing/management
+│   ├── set.ts         # Config updates
+│   └── tiny/          # Image compression module
+├── core/              # Core utilities
+│   ├── config-manager.ts
+│   └── logger.ts
+├── types/             # TypeScript type definitions
+└── index.ts           # CLI entry point
 ```
 
 ### Configuration Management
 
-- Config stored in `~/.zzclub-z-cli/config.json` (user's home directory)
-- Use `getLocalConfig()` to read config
-- Use `setLocalConfig()` to update config
-- Default config in `src/config.default.json`
+- Config location: `~/.zzclub-z-cli/config.json`
+- Default config: `config.default.json` at project root
+- Access via `ConfigManager.load()` and `ConfigManager.save()`
 
-```javascript
-let config = await getLocalConfig();
-let translateConfig = config.translate;
-```
+## Development Principles
 
-### Async Patterns
+### Code Style
 
-- Use `async/await` throughout
-- Use `Promise` constructor only when wrapping callback-based APIs
-- Synchronous recursion with async operations (see `execWorkerSync()` in translate.js)
+1. **ES Modules**: Use `.js` extensions in imports (TypeScript compiles to .js)
+2. **Import Order**: Node.js built-ins → third-party → local modules
+3. **Node.js Prefix**: Use `node:` prefix for built-ins (e.g., `import fs from 'node:fs'`)
+4. **Type Safety**: Never use `as any` or `@ts-ignore`
 
-### File Operations
+### Error Handling
 
-- Use `fs` from `node:fs` (sync methods preferred for simplicity)
-- Use `path` from `node:path` for path operations
-- Use `process.cwd()` for resolving relative paths: `path.resolve(process.cwd(), filePath)`
+- Use `try/catch` for async operations
+- Use Consola for user feedback (replaces ora spinners)
+- Exit with `process.exit(1)` on fatal errors
+- Always validate file paths to prevent directory traversal
 
-## Common Utilities
+### Testing Strategy
 
-### From `utils/common.js`
-
-- `getLocalConfig()` - Read user config
-- `setLocalConfig(newConfig, spinner)` - Update user config
-- `writeFileContent(filePath, content, callback)` - Write file with spinner feedback
-- `checkUpdate()` - Check for npm package updates (24h cache)
-- `checkNodeVersion()` - Validate Node.js version
-- `setHighLightStr(text, highlight, chalkFn)` - Highlight text in terminal
-
-### From `utils/file.js`
-
-- `readJsonFile(filePath)` - Parse JSON file (returns `{}` on error)
-- `getFormatedFileSize(bytes)` - Human-readable file size
-- `checkFileExist(filePath)` - Check if file exists and is a file
-- `getFileInfo(filePath)` - Get file metadata
-- `replaceFileContent(file, replaceMaps)` - Batch replace text in file
-
-## Dependencies
-
-### Core Dependencies
-
-- **commander** (11.0.0) - CLI framework
-- **inquirer** (9.2.8) - Interactive prompts
-- **ora** (7.0.0) - Terminal spinners
-- **chalk** (5.3.0) - Terminal colors
-- **sharp** (0.33.0) - Image processing
-- **shelljs** (0.8.5) - Shell commands
-- **latest-version** (^9.0.0) - NPM version checking
-
-## Important Notes
-
-### Security Considerations
-
-- Never commit sensitive data (appId, key) to git
-- Config stored in user's home directory, not in project
-- Validate user input for file paths to prevent directory traversal
-
-### API Rate Limits
-
-- Baidu Translate API has rate limits:
-  - Standard: 1 QPS, 50K chars/month
-  - Advanced: 10 QPS, 1M chars/month
-- Translation batched in groups of 7 words per second (see `limitWords()`)
-
-### Platform Compatibility
-
-- Primarily developed for Node.js, but also supports Bun
-- Uses `node:` prefix for built-in modules
-- Cross-platform path handling with `path` module
-
-## Development Workflow
-
-1. **Adding a new command:**
-   - Create `src/command/your-command.js`
-   - Export command object with `name`, `description`, `options`, `action`
-   - Import and register in `src/index.js`
-
-2. **Adding a utility:**
-   - Add to appropriate file in `src/utils/`
-   - Use named exports
-   - Document function purpose with comments
-
-3. **Testing changes:**
-   - Test manually with `z <command>` or `zz <command>`
-   - Test with various option combinations
-   - Verify error handling with invalid inputs
-
-4. **Before releasing:**
-   - Update CHANGELOG.md if using changelogen
-   - Use `pnpm release` (patch), `pnpm release:minor`, or `pnpm release:major`
-   - Changelogen handles version bump, git tag, push, and npm publish
+- Manual testing only (no automated test suite)
+- Test commands directly: `zz tiny -f ./demo -r`
+- Verify error handling with invalid inputs
 
 ## Common Pitfalls to Avoid
 
-1. **Don't use** `require()` - this is an ES Module project
-2. **Don't forget** file extensions in imports (`.js` required)
-3. **Don't use** relative imports without `./` or `../`
-4. **Don't hardcode** file paths - use `path.resolve()` and `process.cwd()`
-5. **Don't suppress** spinner output - users need feedback
-6. **Don't forget** to call `spinner.stop()` after operations
-7. **Don't use** `eval()` except where already established (translate.js) - security risk
-8. **Always validate** file existence before processing
-9. **Always provide** clear error messages with context
-10. **Always use** `chalk` for terminal output colorization
+1. **Module System**: Never use `require()` - this is ES Modules only
+2. **Import Extensions**: Always include `.js` in imports (compiled output)
+3. **File Paths**: Use `path.resolve(process.cwd(), filePath)` for relative paths
+4. **Security**: Validate all user input, especially file paths
+5. **Dependencies**: Minimize new dependencies - prefer standard library
 
-## Debugging Tips
+## Development Workflow
 
-- Add `console.log()` for debugging (no formal logging framework)
-- Use `spinner.warn()` for non-fatal issues
-- Check config with: `cat ~/.zzclub-z-cli/config.json`
-- Test translation API separately before integrating
-- Use `--help` flag to verify command registration
+1. **Adding Commands**: Create in `src/commands/`, register in `src/index.ts`
+2. **Testing**: Use `bun run dev` for development testing
+3. **Type Checking**: Run `bun run type-check` before committing
+4. **Releasing**: Use `bun run release:patch|minor|major` (automated via changelogen)
 
 ---
 

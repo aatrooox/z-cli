@@ -54,6 +54,7 @@
   ],
   "license": "MIT",
   "dependencies": {
+    "commander": "^14.0.3",
     "consola": "^3.4.2",
     "sharp": "0.33.0"
   },

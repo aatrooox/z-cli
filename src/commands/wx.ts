@@ -1,6 +1,5 @@
 import { readFileSync, existsSync } from 'node:fs';
 import { basename, extname } from 'node:path';
-import { webcrypto } from 'node:crypto';
 import { ConfigManager } from '../core/config-manager.js';
 import { CliError, createLogger, logFatal, logJson, logStep } from '../core/logger.js';
 
@@ -41,7 +40,6 @@ interface WxCliOptions {
   pat?: string;
   appId?: string;
   appSecret?: string;
-  cryptoKey?: string;
   timeout?: number;
 }
 
@@ -150,7 +148,6 @@ function getConfigFixFlag(name: string): string {
     ZZCLUB_PAT: '--wx-pat',
     WX_APPID: '--wx-app-id',
     WX_APPSECRET: '--wx-app-secret',
-    NUXT_PUBLIC_CRYPTO_SECRET_KEY: '--wx-crypto-key',
     'wx.baseUrl': '--wx-base-url',
   };
   return fixFlags[name] || '';
@@ -173,11 +170,7 @@ function getWxRuntimeConfig(options: WxCliOptions) {
   const pat = requireValue('ZZCLUB_PAT', resolveEnv('ZZCLUB_PAT', options.pat, wxConfig.pat));
   const appId = requireValue('WX_APPID', resolveEnv('WX_APPID', options.appId, wxConfig.appId));
   const appSecret = requireValue('WX_APPSECRET', resolveEnv('WX_APPSECRET', options.appSecret, wxConfig.appSecret));
-  const cryptoKey = requireValue(
-    'NUXT_PUBLIC_CRYPTO_SECRET_KEY',
-    resolveEnv('NUXT_PUBLIC_CRYPTO_SECRET_KEY', options.cryptoKey, wxConfig.cryptoKey),
-  );
-  return { baseUrl, pat, appId, appSecret, cryptoKey, timeout: wxConfig.timeout };
+  return { baseUrl, pat, appId, appSecret, timeout: wxConfig.timeout };
 }
 
 function parsePhotos(value?: string): string[] {
@@ -237,12 +230,11 @@ function replaceImageUrls(html: string, imageUrlMap: Record<string, string>): st
 async function handleToken(log: ReturnType<typeof createLogger>, options: WxCliOptions): Promise<void> {
   const runtime = getWxRuntimeConfig(options);
   const timeout = resolveTimeout(TOKEN_TIMEOUT, runtime.timeout, options.timeout);
-  const response = await requestEncryptedToken(
+  const response = await requestToken(
     runtime.baseUrl,
     runtime.pat,
     runtime.appId,
     runtime.appSecret,
-    runtime.cryptoKey,
     timeout,
   );
   logJson(log, response);
@@ -263,7 +255,6 @@ async function handleUpload(log: ReturnType<typeof createLogger>, options: WxCli
     runtime.pat,
     runtime.appId,
     runtime.appSecret,
-    runtime.cryptoKey,
     tokenTimeout,
   );
   logStep(log, 2, 2, '上传图片素材');
@@ -276,7 +267,7 @@ async function handleDraft(log: ReturnType<typeof createLogger>, options: WxCliO
   const title = requireValue('title', options.title);
   const html = readTextInput(options.html, options.htmlFile);
   if (!html) {
-    throw new Error('缺少 HTML 内容，请使用 --html 或 --html-file');
+    throw new Error('缺少富文本 HTML 片段内容，请使用 --html 或 --html-file（将作为 content 原样写入公众号编辑器）');
   }
 
   const fallbackPhotos = extractImageUrls(html);
@@ -295,7 +286,6 @@ async function handleDraft(log: ReturnType<typeof createLogger>, options: WxCliO
     runtime.pat,
     runtime.appId,
     runtime.appSecret,
-    runtime.cryptoKey,
     tokenTimeout,
   );
   logStep(log, 2, 3, '上传图片素材');
@@ -353,7 +343,6 @@ async function handleNewspic(log: ReturnType<typeof createLogger>, options: WxCl
     runtime.pat,
     runtime.appId,
     runtime.appSecret,
-    runtime.cryptoKey,
     tokenTimeout,
   );
   logStep(log, 2, 4, '上传图片素材');
@@ -396,10 +385,9 @@ async function fetchAccessToken(
   pat: string,
   appId: string,
   appSecret: string,
-  cryptoKey: string,
   timeout: number,
 ): Promise<string> {
-  const response = await requestEncryptedToken(baseUrl, pat, appId, appSecret, cryptoKey, timeout);
+  const response = await requestToken(baseUrl, pat, appId, appSecret, timeout);
   const accessToken = response.data?.accessToken || response.accessToken;
   if (!accessToken) {
     throw new Error('Access token not found. Please ensure token API returns data.accessToken.');
@@ -407,15 +395,13 @@ async function fetchAccessToken(
   return accessToken;
 }
 
-async function requestEncryptedToken(
+async function requestToken(
   baseUrl: string,
   pat: string,
   appId: string,
   appSecret: string,
-  cryptoKey: string,
   timeout: number,
 ): Promise<TokenResponse> {
-  const encrypted = await encryptObjectForServer({ appId, appSecret }, cryptoKey);
   const response = await requestJson(
     `${baseUrl}${TOKEN_PATH}`,
     {
@@ -424,7 +410,7 @@ async function requestEncryptedToken(
         'Content-Type': 'application/json',
         Authorization: `Bearer ${pat}`,
       },
-      body: { encrypted },
+      body: { appId, appSecret },
     },
     timeout,
   );
@@ -611,51 +597,4 @@ async function requestFormData(
   } finally {
     clearTimeout(timeoutId);
   }
-}
-
-function stringToBytes(str: string): Uint8Array {
-  return new TextEncoder().encode(str);
-}
-
-function bytesToBase64(bytes: Uint8Array): string {
-  return Buffer.from(bytes).toString('base64');
-}
-
-function toArrayBuffer(bytes: Uint8Array): ArrayBuffer {
-  const buffer = new ArrayBuffer(bytes.byteLength);
-  new Uint8Array(buffer).set(bytes);
-  return buffer;
-}
-
-async function getKeyFromString(keyString: string): Promise<CryptoKey> {
-  const keyBytes = stringToBytes(keyString);
-  const hashBuffer = await webcrypto.subtle.digest('SHA-256', toArrayBuffer(keyBytes));
-  return webcrypto.subtle.importKey(
-    'raw',
-    hashBuffer,
-    { name: 'AES-GCM' },
-    false,
-    ['encrypt', 'decrypt'],
-  );
-}
-
-async function encryptForServer(plaintext: string, secretKey: string): Promise<string> {
-  const key = await getKeyFromString(secretKey);
-  const iv = webcrypto.getRandomValues(new Uint8Array(12));
-  const encodedText = stringToBytes(plaintext);
-  const encryptedBuffer = await webcrypto.subtle.encrypt(
-    { name: 'AES-GCM', iv },
-    key,
-    toArrayBuffer(encodedText),
-  );
-
-  const encryptedBytes = new Uint8Array(encryptedBuffer);
-  const ciphertext = encryptedBytes.slice(0, -16);
-  const authTag = encryptedBytes.slice(-16);
-
-  return `${bytesToBase64(iv)}:${bytesToBase64(authTag)}:${bytesToBase64(ciphertext)}`;
-}
-
-async function encryptObjectForServer<T>(obj: T, secretKey: string): Promise<string> {
-  return encryptForServer(JSON.stringify(obj), secretKey);
 }

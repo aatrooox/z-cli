@@ -5,10 +5,9 @@ import { parseNonNegativeInteger } from './utils.js';
 function applyWxCommonOptions(cmd: Command): Command {
   return cmd
     .option('--base-url <url>', '接口基础地址 (默认: config.wx.baseUrl / https://zzao.club)')
-    .option('--pat <token>', 'ZZCLUB_PAT (可用环境变量)')
-    .option('--app-id <id>', 'WX_APPID (可用环境变量)')
-    .option('--app-secret <secret>', 'WX_APPSECRET (可用环境变量)')
-    .option('--crypto-key <key>', 'NUXT_PUBLIC_CRYPTO_SECRET_KEY (可用环境变量)')
+    .option('--pat <token>', 'ZZCLUB_PAT (从 https://zzao.club 中获取的 PAT)')
+    .option('--app-id <id>', 'WX_APPID (从公众号后台获取的 AppID)')
+    .option('--app-secret <secret>', 'WX_APPSECRET (从公众号后台获取的 AppSecret)')
     .option('--timeout <ms>', '请求超时 (毫秒)', parseNonNegativeInteger);
 }
 
@@ -26,7 +25,6 @@ export function registerWx(program: Command): void {
           pat: options.pat,
           appId: options.appId,
           appSecret: options.appSecret,
-          cryptoKey: options.cryptoKey,
           timeout: options.timeout,
         });
       }),
@@ -45,7 +43,6 @@ export function registerWx(program: Command): void {
           pat: options.pat,
           appId: options.appId,
           appSecret: options.appSecret,
-          cryptoKey: options.cryptoKey,
           timeout: options.timeout,
         });
       }),
@@ -56,8 +53,8 @@ export function registerWx(program: Command): void {
       .command('draft')
       .description('创建图文草稿(news)')
       .option('-t, --title <title>', '草稿标题')
-      .option('--html <html>', 'HTML 内容（图文 draft）')
-      .option('--html-file <path>', 'HTML 文件路径（图文 draft）')
+      .option('--html <html>', '富文本 HTML 片段（字符串，将作为 content 直接写入公众号编辑器）')
+      .option('--html-file <path>', '富文本 HTML 片段文件路径（内容将按字符串读取后写入公众号编辑器）')
       .option('--photos <list>', '图片列表（逗号分隔或文件路径）')
       .action(async options => {
         await wxCommand({
@@ -70,7 +67,6 @@ export function registerWx(program: Command): void {
           pat: options.pat,
           appId: options.appId,
           appSecret: options.appSecret,
-          cryptoKey: options.cryptoKey,
           timeout: options.timeout,
         });
       }),
@@ -95,7 +91,6 @@ export function registerWx(program: Command): void {
           pat: options.pat,
           appId: options.appId,
           appSecret: options.appSecret,
-          cryptoKey: options.cryptoKey,
           timeout: options.timeout,
         });
       }),
@@ -105,8 +100,8 @@ export function registerWx(program: Command): void {
   applyWxCommonOptions(wx);
   wx
     .option('-t, --title <title>', '草稿标题')
-    .option('--html <html>', 'HTML 内容（图文 draft）')
-    .option('--html-file <path>', 'HTML 文件路径（图文 draft）')
+    .option('--html <html>', '富文本 HTML 片段（字符串，将作为 content 直接写入公众号编辑器）')
+    .option('--html-file <path>', '富文本 HTML 片段文件路径（内容将按字符串读取后写入公众号编辑器）')
     .option('--content <text>', '内容（newspic）')
     .option('--content-file <path>', '内容文件路径（newspic）')
     .option('--photos <list>', '图片列表（逗号分隔或文件路径）')
@@ -127,7 +122,6 @@ export function registerWx(program: Command): void {
         pat: options.pat,
         appId: options.appId,
         appSecret: options.appSecret,
-        cryptoKey: options.cryptoKey,
         timeout: options.timeout,
       });
     });

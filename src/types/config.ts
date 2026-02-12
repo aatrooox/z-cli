@@ -28,7 +28,6 @@ export interface WxConfig {
   pat: string;
   appId: string;
   appSecret: string;
-  cryptoKey: string;
   timeout: number;
 }
 
@@ -48,7 +47,6 @@ export const DEFAULT_CONFIG: GlobalConfig = {
     pat: '',
     appId: '',
     appSecret: '',
-    cryptoKey: '',
     timeout: 30000,
   },
 };

@@ -10,7 +10,6 @@ export interface SetCliOptions {
   wxPat?: string;
   wxAppId?: string;
   wxAppSecret?: string;
-  wxCryptoKey?: string;
   wxTimeout?: number;
 }
 
@@ -58,10 +57,6 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
 
     if (options.wxAppSecret !== undefined) {
       wxUpdates.appSecret = options.wxAppSecret;
-    }
-
-    if (options.wxCryptoKey !== undefined) {
-      wxUpdates.cryptoKey = options.wxCryptoKey;
     }
 
     if (options.wxTimeout !== undefined) {

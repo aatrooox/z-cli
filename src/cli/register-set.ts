@@ -14,7 +14,6 @@ export function registerSet(program: Command): void {
     .option('--wx-pat <token>', '设置 ZZCLUB_PAT')
     .option('--wx-app-id <id>', '设置 WX_APPID')
     .option('--wx-app-secret <key>', '设置 WX_APPSECRET')
-    .option('--wx-crypto-key <key>', '设置 NUXT_PUBLIC_CRYPTO_SECRET_KEY')
     .option('--wx-timeout <ms>', '设置微信请求超时(毫秒)', parseNonNegativeInteger)
     .action(async (options, cmd) => {
       await setCommand({
@@ -26,7 +25,6 @@ export function registerSet(program: Command): void {
         wxPat: options.wxPat,
         wxAppId: options.wxAppId,
         wxAppSecret: options.wxAppSecret,
-        wxCryptoKey: options.wxCryptoKey,
         wxTimeout: options.wxTimeout,
       });
     });

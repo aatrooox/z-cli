@@ -1,6 +1,23 @@
 # Changelog
 
 
+## v2.0.0
+
+[compare changes](https://github.com/aatrooox/z-cli/compare/v1.0.1...v2.0.0)
+
+### 🚀 Enhancements
+
+- 升级为p0级项目; 更新Agent说明 ([de95301](https://github.com/aatrooox/z-cli/commit/de95301))
+- 增加z-cli skill ([609ace3](https://github.com/aatrooox/z-cli/commit/609ace3))
+
+### 🏡 Chore
+
+- 移除多余文件 ([806cd0d](https://github.com/aatrooox/z-cli/commit/806cd0d))
+
+### ❤️ Contributors
+
+- Aatrox <gnakzz@qq.com>
+
 ## v1.0.1
 
 [compare changes](https://github.com/aatrooox/z-cli/compare/v1.0.0...v1.0.1)

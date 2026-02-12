@@ -3,7 +3,7 @@ import type { CompressionOptions } from './types.js';
 import { ImageCompressor } from './compressor.js';
 import { FileProcessor } from './file-processor.js';
 import { ConfigManager } from '../../core/config-manager.js';
-import { logger, formatFileSize, formatCompressionRatio } from '../../core/logger.js';
+import { createLogger, logSummary, formatFileSize, formatCompressionRatio } from '../../core/logger.js';
 
 /**
  * Tiny 命令选项（从 CLI 传入）
@@ -21,6 +21,7 @@ export interface TinyCliOptions {
  */
 export async function tinyCommand(options: TinyCliOptions): Promise<void> {
   try {
+    const log = createLogger('tiny');
     const configManager = new ConfigManager();
     const config = configManager.getTinyConfig();
 
@@ -32,7 +33,7 @@ export async function tinyCommand(options: TinyCliOptions): Promise<void> {
 
     // 验证输入
     if (!options.file) {
-      logger.error('请使用 -f 或 --file 指定要压缩的文件或目录');
+      log.error('请使用 -f 或 --file 指定要压缩的文件或目录');
       process.exit(1);
     }
 
@@ -40,7 +41,7 @@ export async function tinyCommand(options: TinyCliOptions): Promise<void> {
 
     // 验证质量参数
     if (quality < 1 || quality > 100) {
-      logger.error('压缩质量必须在 1-100 之间');
+      log.error('压缩质量必须在 1-100 之间');
       process.exit(1);
     }
 
@@ -59,19 +60,19 @@ export async function tinyCommand(options: TinyCliOptions): Promise<void> {
     const stats = await processor.process(inputPath, compressionOptions);
 
     // 显示统计信息
-    logger.box(
-      `压缩完成\n\n` +
-      `总文件数: ${stats.total}\n` +
-      `成功: ${stats.success}\n` +
-      `失败: ${stats.failed}\n` +
-      `总原始大小: ${formatFileSize(stats.totalOriginalSize)}\n` +
-      `总压缩后大小: ${formatFileSize(stats.totalCompressedSize)}\n` +
-      `平均压缩率: ${formatCompressionRatio(stats.averageCompressionRatio)}`
-    );
+    logSummary(log, '压缩完成', [
+      `总文件数: ${stats.total}`,
+      `成功: ${stats.success}`,
+      `失败: ${stats.failed}`,
+      `总原始大小: ${formatFileSize(stats.totalOriginalSize)}`,
+      `总压缩后大小: ${formatFileSize(stats.totalCompressedSize)}`,
+      `平均压缩率: ${formatCompressionRatio(stats.averageCompressionRatio)}`,
+    ]);
 
     process.exit(0);
   } catch (error) {
-    logger.error(`执行失败: ${error instanceof Error ? error.message : String(error)}`);
+    const log = createLogger('tiny');
+    log.error(`执行失败: ${error instanceof Error ? error.message : String(error)}`);
     process.exit(1);
   }
 }

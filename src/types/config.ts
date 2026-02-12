@@ -4,6 +4,7 @@
 export interface GlobalConfig {
   /** Tiny 命令配置 */
   tiny: TinyConfig;
+  wx: WxConfig;
 }
 
 /**
@@ -22,6 +23,15 @@ export interface TinyConfig {
   verbose: boolean;
 }
 
+export interface WxConfig {
+  baseUrl: string;
+  pat: string;
+  appId: string;
+  appSecret: string;
+  cryptoKey: string;
+  timeout: number;
+}
+
 /**
  * 默认配置
  */
@@ -32,6 +42,14 @@ export const DEFAULT_CONFIG: GlobalConfig = {
     overwrite: false,
     outputDir: null,
     verbose: false,
+  },
+  wx: {
+    baseUrl: 'https://zzao.club',
+    pat: '',
+    appId: '',
+    appSecret: '',
+    cryptoKey: '',
+    timeout: 30000,
   },
 };
 

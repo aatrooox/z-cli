@@ -3,13 +3,14 @@ import { join, dirname, basename, extname } from 'node:path';
 import type { CompressionOptions, ProcessingStats } from './types.js';
 import { SUPPORTED_FORMATS } from './types.js';
 import { ImageCompressor } from './compressor.js';
-import { logger, formatFileSize, formatCompressionRatio } from '../../core/logger.js';
+import { createLogger, formatFileSize, formatCompressionRatio } from '../../core/logger.js';
 
 /**
  * 文件处理器
  */
 export class FileProcessor {
   private compressor: ImageCompressor;
+  private log = createLogger('tiny');
 
   constructor(compressor: ImageCompressor) {
     this.compressor = compressor;
@@ -51,17 +52,17 @@ export class FileProcessor {
     // 确定输出路径
     const outputPath = this.getOutputPath(filePath, options);
 
-    logger.start(`正在压缩: ${filePath}`);
+    this.log.start(`正在压缩: ${filePath}`);
 
     const result = await this.compressor.compress(filePath, outputPath, options);
 
     if (result.success) {
-      logger.success(
+      this.log.success(
         `压缩成功: ${formatFileSize(result.originalSize)} → ${formatFileSize(result.compressedSize)} ` +
         `(减少 ${formatCompressionRatio(result.compressionRatio)})`
       );
     } else {
-      logger.error(`压缩失败: ${result.error}`);
+      this.log.error(`压缩失败: ${result.error}`);
     }
 
     return {
@@ -85,11 +86,11 @@ export class FileProcessor {
     const files = this.collectImageFiles(dirPath, options.recursive || false);
 
     if (files.length === 0) {
-      logger.warn(`目录中没有找到支持的图片文件: ${dirPath}`);
+      this.log.warn(`目录中没有找到支持的图片文件: ${dirPath}`);
       return this.emptyStats();
     }
 
-    logger.info(`找到 ${files.length} 个图片文件`);
+    this.log.info(`找到 ${files.length} 个图片文件`);
 
     const stats: ProcessingStats = this.emptyStats();
 

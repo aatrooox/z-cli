@@ -89,6 +89,7 @@ export class ConfigManager {
       // 合并默认配置（处理新增字段）
       return {
         tiny: { ...DEFAULT_CONFIG.tiny, ...loadedConfig.tiny },
+        wx: { ...DEFAULT_CONFIG.wx, ...loadedConfig.wx },
       };
     } catch (error) {
       console.error(`配置文件解析失败，使用默认配置: ${error}`);
@@ -121,11 +122,20 @@ export class ConfigManager {
     return this.config.tiny;
   }
 
+  getWxConfig() {
+    return this.config.wx;
+  }
+
   /**
    * 更新 Tiny 配置
    */
   updateTinyConfig(updates: Partial<GlobalConfig['tiny']>): void {
     this.config.tiny = { ...this.config.tiny, ...updates };
+    this.save(this.config);
+  }
+
+  updateWxConfig(updates: Partial<GlobalConfig['wx']>): void {
+    this.config.wx = { ...this.config.wx, ...updates };
     this.save(this.config);
   }
 

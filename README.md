@@ -14,17 +14,26 @@
 ```mermaid
 graph LR
     A[AI Agent] --> B[Skills]
-    B --> C[z-cli Commands]
-    C --> D[Image Compression]
-    C --> E[i18n Management]
-    C --> F[Future Scripts...]
+    B --> C[SKILL1]
+    B --> D[SKILL2]
+    C --> E[Script1]
+    C --> F[Script2]
+    D --> G[Script1]
+    D --> H[Script2]
+    E --> Z[Z-CLI]
+    F --> Z
+    G --> Z
+    H --> Z
     
     style A fill:#e1f5ff
     style B fill:#fff4e6
-    style C fill:#f3e5f5
-    style D fill:#e8f5e9
-    style E fill:#e8f5e9
-    style F fill:#e8f5e9
+    style C fill:#fff4e6
+    style D fill:#fff4e6
+    style E fill:#fff4e6
+    style F fill:#fff4e6
+    style G fill:#fff4e6
+    style H fill:#fff4e6
+    style Z fill:#e8f5e9
 ```
 
 **核心目标**：将常用自动化脚本封装为 CLI 命令，Skills 描述调用方式即可，Agent 直接执行。

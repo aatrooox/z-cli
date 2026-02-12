@@ -109,6 +109,12 @@ src/
 - Test commands directly: `zz tiny -f ./demo -r`
 - Verify error handling with invalid inputs
 
+### Git Commit Habit
+
+- Default: **one commit per fully completed requirement** (end-to-end, verified), unless the user explicitly asks for a different granularity (e.g. split commits, squash, or no commit).
+- Do not create partial “WIP” commits in this repo.
+- Always run `bun run type-check` (and `bun run build` when relevant) before committing.
+
 ## Common Pitfalls to Avoid
 
 1. **Module System**: Never use `require()` - this is ES Modules only

@@ -116,6 +116,27 @@ To stay consistent with the README's core idea (“move scripts into z-cli, keep
 - Implement feature logic under `src/commands/` and register it in `src/index.ts`.
 - Skills MUST NOT contain heavy scripting or duplicated implementations.
   - Skills should include: intent description + a few example invocations (prefer `bunx @zzclub/z-cli ...`) + minimal argument mapping when unavoidable.
+
+### Skills Repo Sync Policy (MANDATORY)
+
+When this project adds/changes requirements, commands, flags, outputs, or workflows, you MUST sync the corresponding docs in:
+
+- `/root/code/zzclub/skills/z-cli`
+
+Minimum required updates in the skills repo:
+
+1. Create/update `references/<command>.md` for the command.
+2. Update `SKILL.md` routing/links so agents can discover the new/changed command.
+3. If config/defaults changed, update `references/config.md` and/or `references/set.md`.
+
+After updating the skills repo, you MUST:
+
+- auto-generate an appropriate commit message (follow the repo's `feat/docs/chore:` style)
+- commit the changes in the skills repo
+- push the commit to the remote (no force push)
+
+---
+
 - When adding new automation:
   1. Add/extend the CLI command in `src/commands/`.
   2. Ensure help/usage is clear via CLI `--help`.

@@ -26,7 +26,7 @@ This project is classified as **P0 (highest priority)** because:
 - **Runtime**: Node.js >= 18.18.0 | Bun >= 1.0.0 (primary development environment)
 - **Package Manager**: Bun 1.3.7+ (locked via `packageManager` field)
 - **Type**: Native CLI implementation with full TypeScript support
-- **Framework**: No CLI framework dependency (native implementation)
+- **Framework**: Minimal CLI framework (Commander) for argument parsing + default help; the rest stays lightweight and native
 
 ## Build, Lint, and Test Commands
 
@@ -61,7 +61,7 @@ There is **no automated test suite**. Test commands manually by running them dir
 - **TypeScript**: Full type safety, compile to ES Modules
 - **Consola**: Unified logging (replaces ora/chalk patterns)
 - **Sharp**: High-performance image processing
-- **No CLI Framework**: Native implementation for minimal dependencies
+- **Commander**: Argument parsing + default help output (avoid hand-rolled argv/help)
 
 ### Project Structure
 
@@ -108,6 +108,18 @@ src/
 - Manual testing only (no automated test suite)
 - Test commands directly: `zz tiny -f ./demo -r`
 - Verify error handling with invalid inputs
+
+### Skill Integration Policy (scripts → z-cli; skills = thin wrappers)
+
+To stay consistent with the README's core idea (“move scripts into z-cli, keep Skills thin”), **all feature logic / automation scripts MUST live in z-cli as CLI commands**. Skills are only a lightweight description layer that tells an agent how to call those commands.
+
+- Implement feature logic under `src/commands/` and register it in `src/index.ts`.
+- Skills MUST NOT contain heavy scripting or duplicated implementations.
+  - Skills should include: intent description + a few example invocations (prefer `bunx @zzclub/z-cli ...`) + minimal argument mapping when unavoidable.
+- When adding new automation:
+  1. Add/extend the CLI command in `src/commands/`.
+  2. Ensure help/usage is clear via CLI `--help`.
+  3. Update the corresponding skill references to show the new CLI invocation.
 
 ### Git Commit Habit
 

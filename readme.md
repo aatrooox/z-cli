@@ -1,21 +1,49 @@
 # z-cli
 
-**轻量级图片压缩命令行工具 | Lightweight Image Compression CLI Tool**
+**Agent-First CLI Toolkit for Extensible Automation**
 
 [![npm version](https://img.shields.io/npm/v/@zzclub/z-cli?style=flat&color=18181B&colorB=F0DB4F)](https://npmjs.com/package/@zzclub/z-cli)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5.9-blue?style=flat&logo=typescript)](https://www.typescriptlang.org/)
 [![Bun](https://img.shields.io/badge/Bun-1.0+-F472B6?style=flat&logo=bun)](https://bun.sh)
 [![License](https://img.shields.io/npm/l/@zzclub/z-cli?style=flat&color=18181B)](https://github.com/aatrooox/z-cli/blob/main/LICENSE)
 
-基于 [Sharp](https://sharp.pixelplumbing.com/) 的高性能图片压缩工具，使用 TypeScript 开发，支持 Node.js 和 Bun。
+面向 AI Agent 的命令行工具集，集成各类自动化脚本。Skills 只需调用命令即可，无需维护复杂脚本。使用 TypeScript 开发，支持 Node.js 和 Bun。
+
+## 🎯 设计理念
+
+```mermaid
+graph LR
+    A[AI Agent] --> B[Skills]
+    B --> C[z-cli Commands]
+    C --> D[Image Compression]
+    C --> E[i18n Management]
+    C --> F[Future Scripts...]
+    
+    style A fill:#e1f5ff
+    style B fill:#fff4e6
+    style C fill:#f3e5f5
+    style D fill:#e8f5e9
+    style E fill:#e8f5e9
+    style F fill:#e8f5e9
+```
+
+**核心目标**：将常用自动化脚本封装为 CLI 命令，Skills 描述调用方式即可，Agent 直接执行。
+
+**当前命令**：
+- `tiny` - 高性能图片压缩（基于 Sharp）
+
+**未来扩展**：
+- i18n 管理
+- 代码生成
+- 文件批处理
+- ...更多 Agent 能力增强命令
 
 ## ✨ 特性
 
-- 🚀 **高性能压缩** - 基于 Sharp (libvips)，比传统工具快 4-5 倍
-- 📦 **多格式支持** - JPEG, PNG, WebP 等主流图片格式
-- 🎯 **智能处理** - 自动选择最佳压缩算法（JPEG: mozjpeg, PNG: pngquant）
-- 📁 **批量处理** - 支持递归处理整个目录
-- ⚙️ **灵活配置** - 持久化配置，命令行参数优先级更高
+- 🤖 **Agent 优先** - 专为 AI Agent 工作流设计
+- 🔧 **开箱即用** - 无需配置复杂脚本，直接调用命令
+- 📦 **持续扩展** - 后续命令聚焦 Agent 能力增强
+- ⚙️ **灵活配置** - 支持持久化配置，命令行参数优先
 - 💻 **跨平台** - Windows, macOS, Linux 全平台支持
 - 🔧 **TypeScript** - 完整类型支持，可用于 Skills 集成
 
@@ -75,9 +103,16 @@ zz tiny -f ./image.jpg
 z-cli tiny -f ./image.jpg
 ```
 
-## 📖 命令详解
+## 📖 命令列表
 
 ### `tiny` - 图片压缩
+
+高性能图片压缩命令，基于 [Sharp](https://sharp.pixelplumbing.com/)（libvips），比传统工具快 4-5 倍。
+
+**特性**：
+- 多格式支持：JPEG, PNG, WebP
+- 智能算法：自动选择 mozjpeg（JPEG）和 pngquant（PNG）
+- 批量处理：支持递归目录
 
 压缩单个文件或整个目录的图片。
 
@@ -205,8 +240,9 @@ z config --reset
 ```
 
 **配置文件位置：**
-- Windows: `C:\Users\<用户名>\.zzclub-z-cli\config.json`
-- macOS/Linux: `~/.zzclub-z-cli/config.json`
+- Linux: `~/.config/zzclub-z-cli/config.json`（或 `$XDG_CONFIG_HOME/zzclub-z-cli/config.json`）
+- macOS: `~/Library/Application Support/zzclub-z-cli/config.json`
+- Windows: `%APPDATA%\zzclub-z-cli\config.json`
 
 **默认配置：**
 
@@ -224,7 +260,24 @@ z config --reset
 
 ## 🔌 在 Skills 中使用
 
-如果你想在 OpenCode Skills 或其他自动化脚本中使用 z-cli,推荐使用 `bunx` 或 `npx` 调用。
+z-cli 专为 Agent + Skills 工作流设计。Skills 只需描述命令调用方式，Agent 即可执行。
+
+### 架构说明
+
+```
+Agent（决策层）
+  ↓ 调用
+Skill（描述层）
+  ↓ 执行
+z-cli（工具层）
+  ↓ 集成
+各类 Scripts（实现层）
+```
+
+**优势**：
+- Skills 无需维护复杂脚本逻辑
+- 命令版本统一管理
+- Agent 可直接调用，无额外依赖
 
 ### 前置要求
 

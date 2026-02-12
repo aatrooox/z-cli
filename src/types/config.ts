@@ -35,8 +35,5 @@ export const DEFAULT_CONFIG: GlobalConfig = {
   },
 };
 
-/**
- * 配置文件路径
- */
-export const CONFIG_DIR = '.zzclub-z-cli';
+export const CONFIG_DIR = 'zzclub-z-cli';
 export const CONFIG_FILE = 'config.json';

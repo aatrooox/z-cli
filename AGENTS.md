@@ -80,7 +80,10 @@ src/
 
 ### Configuration Management
 
-- Config location: `~/.zzclub-z-cli/config.json`
+- Config location:
+  - Linux: `~/.config/zzclub-z-cli/config.json` (or `$XDG_CONFIG_HOME/zzclub-z-cli/config.json`)
+  - macOS: `~/Library/Application Support/zzclub-z-cli/config.json`
+  - Windows: `%APPDATA%\zzclub-z-cli\config.json`
 - Default config: `config.default.json` at project root
 - Access via `ConfigManager.load()` and `ConfigManager.save()`
 

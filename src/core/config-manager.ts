@@ -1,6 +1,6 @@
-import { homedir } from 'node:os';
-import { join } from 'node:path';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { homedir, platform } from 'node:os';
+import { basename, join } from 'node:path';
+import { existsSync, mkdirSync, readFileSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import type { GlobalConfig } from '../types/config.js';
 import { DEFAULT_CONFIG, CONFIG_DIR, CONFIG_FILE } from '../types/config.js';
 
@@ -12,8 +12,9 @@ export class ConfigManager {
   private config: GlobalConfig;
 
   constructor() {
-    const configDir = join(homedir(), CONFIG_DIR);
+    const configDir = this.getConfigDir();
     this.configPath = join(configDir, CONFIG_FILE);
+    this.migrateLegacyConfig(configDir, this.configPath);
     
     // 确保配置目录存在
     if (!existsSync(configDir)) {
@@ -22,6 +23,53 @@ export class ConfigManager {
 
     // 加载配置
     this.config = this.load();
+  }
+
+  private getConfigDir(): string {
+    const home = homedir();
+    const currentPlatform = platform();
+
+    if (currentPlatform === 'win32') {
+      const appData = process.env.APPDATA;
+      if (appData) {
+        return join(appData, CONFIG_DIR);
+      }
+      return join(home, 'AppData', 'Roaming', CONFIG_DIR);
+    }
+
+    if (currentPlatform === 'darwin') {
+      return join(home, 'Library', 'Application Support', CONFIG_DIR);
+    }
+
+    const xdgConfigHome = process.env.XDG_CONFIG_HOME;
+    if (xdgConfigHome && xdgConfigHome.trim().length > 0) {
+      return join(xdgConfigHome, CONFIG_DIR);
+    }
+
+    return join(home, '.config', CONFIG_DIR);
+  }
+
+  private migrateLegacyConfig(configDir: string, nextConfigPath: string): void {
+    const legacyDir = join(homedir(), `.${CONFIG_DIR}`);
+    const legacyPath = join(legacyDir, CONFIG_FILE);
+
+    if (!existsSync(legacyPath) || existsSync(nextConfigPath)) {
+      return;
+    }
+
+    if (!existsSync(configDir)) {
+      mkdirSync(configDir, { recursive: true });
+    }
+
+    renameSync(legacyPath, nextConfigPath);
+
+    if (existsSync(legacyDir) && basename(legacyDir) === `.${CONFIG_DIR}`) {
+      try {
+        rmSync(legacyDir, { recursive: true, force: true });
+      } catch {
+        return;
+      }
+    }
   }
 
   /**

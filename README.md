@@ -112,6 +112,39 @@ zz tiny -f ./image.jpg
 z-cli tiny -f ./image.jpg
 ```
 
+## 微信公众号草稿箱（wx）
+
+> 用于把富文本 HTML 片段写入公众号草稿箱（news），并自动上传图片素材、替换图片 URL。
+
+### 创建图文草稿（news）
+
+```bash
+z wx draft \
+  -t "文章标题" \
+  --html-file "/path/to/fragment.html"
+```
+
+常用参数：
+- `-t, --title <title>`：草稿标题（必需）
+- `--html <html>`：直接传 HTML 片段字符串
+- `--html-file <path>`：从文件读取 HTML 片段（推荐）
+- `--photos <list>`：图片列表（逗号分隔，支持 URL / 本地路径 / dataURL）。不传时会尝试从 HTML 里自动提取 `<img src=...>`。
+
+环境变量（也可用命令行参数覆盖）：
+- `ZZCLUB_PAT`
+- `WX_APPID`
+- `WX_APPSECRET`
+
+示例：从 ZotePad 导出目录创建草稿
+
+```bash
+z wx draft \
+  -t "文章标题" \
+  --html-file "/Users/aatrox/.openclaw/workspace/zotepad-exports/html/my-slug.html"
+```
+
+---
+
 ## 📖 命令列表
 
 ### `tiny` - 图片压缩

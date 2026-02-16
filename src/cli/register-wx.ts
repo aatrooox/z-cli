@@ -56,18 +56,22 @@ export function registerWx(program: Command): void {
       .option('--html <html>', '富文本 HTML 片段（字符串，将作为 content 直接写入公众号编辑器）')
       .option('--html-file <path>', '富文本 HTML 片段文件路径（内容将按字符串读取后写入公众号编辑器）')
       .option('--photos <list>', '图片列表（逗号分隔或文件路径）')
-      .action(async options => {
+      // NOTE: commander 在父命令与子命令存在同名 option（例如 -t/--title）时，
+      // 可能会把值解析到父命令上，导致这里的 options.title 为空。
+      // 为兼容 `z wx -a draft -t ...` 与 `z wx draft -t ...` 两种写法，这里做一次回退合并。
+      .action(async (options, command) => {
+        const parentOpts = (command?.parent as any)?.opts?.() || {};
         await wxCommand({
           action: 'draft',
-          baseUrl: options.baseUrl,
-          title: options.title,
-          html: options.html,
-          htmlFile: options.htmlFile,
-          photos: options.photos,
-          pat: options.pat,
-          appId: options.appId,
-          appSecret: options.appSecret,
-          timeout: options.timeout,
+          baseUrl: options.baseUrl ?? parentOpts.baseUrl,
+          title: options.title ?? parentOpts.title,
+          html: options.html ?? parentOpts.html,
+          htmlFile: options.htmlFile ?? parentOpts.htmlFile,
+          photos: options.photos ?? parentOpts.photos,
+          pat: options.pat ?? parentOpts.pat,
+          appId: options.appId ?? parentOpts.appId,
+          appSecret: options.appSecret ?? parentOpts.appSecret,
+          timeout: options.timeout ?? parentOpts.timeout,
         });
       }),
   );
@@ -80,18 +84,19 @@ export function registerWx(program: Command): void {
       .option('--content <text>', '内容（newspic）')
       .option('--content-file <path>', '内容文件路径（newspic）')
       .option('--photos <list>', '图片列表（逗号分隔或文件路径）')
-      .action(async options => {
+      .action(async (options, command) => {
+        const parentOpts = (command?.parent as any)?.opts?.() || {};
         await wxCommand({
           action: 'newspic',
-          baseUrl: options.baseUrl,
-          title: options.title,
-          content: options.content,
-          contentFile: options.contentFile,
-          photos: options.photos,
-          pat: options.pat,
-          appId: options.appId,
-          appSecret: options.appSecret,
-          timeout: options.timeout,
+          baseUrl: options.baseUrl ?? parentOpts.baseUrl,
+          title: options.title ?? parentOpts.title,
+          content: options.content ?? parentOpts.content,
+          contentFile: options.contentFile ?? parentOpts.contentFile,
+          photos: options.photos ?? parentOpts.photos,
+          pat: options.pat ?? parentOpts.pat,
+          appId: options.appId ?? parentOpts.appId,
+          appSecret: options.appSecret ?? parentOpts.appSecret,
+          timeout: options.timeout ?? parentOpts.timeout,
         });
       }),
   );

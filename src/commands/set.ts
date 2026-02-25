@@ -11,6 +11,7 @@ export interface SetCliOptions {
   wxAppId?: string;
   wxAppSecret?: string;
   wxTimeout?: number;
+  apiEnv?: string[];
 }
 
 /**
@@ -22,6 +23,22 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
     const configManager = new ConfigManager();
     const tinyUpdates: Record<string, unknown> = {};
     const wxUpdates: Record<string, unknown> = {};
+    const apiUpdates: Record<string, string> = {};
+
+    for (const raw of options.apiEnv ?? []) {
+      const idx = raw.indexOf('=');
+      if (idx <= 0) {
+        log.error(`非法 --api: ${raw}（格式必须为 KEY=VALUE）`);
+        process.exit(1);
+      }
+      const key = raw.slice(0, idx).trim();
+      const value = raw.slice(idx + 1);
+      if (!key) {
+        log.error(`非法 --api: ${raw}（KEY 不能为空）`);
+        process.exit(1);
+      }
+      apiUpdates[key] = value;
+    }
 
     if (options.quality !== undefined) {
         if (options.quality < 1 || options.quality > 100) {
@@ -67,7 +84,7 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
       wxUpdates.timeout = options.wxTimeout;
     }
 
-    if (Object.keys(tinyUpdates).length === 0 && Object.keys(wxUpdates).length === 0) {
+    if (Object.keys(tinyUpdates).length === 0 && Object.keys(wxUpdates).length === 0 && Object.keys(apiUpdates).length === 0) {
       log.warn('没有提供任何配置更新');
       process.exit(0);
     }
@@ -79,12 +96,18 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
     if (Object.keys(wxUpdates).length > 0) {
       configManager.updateWxConfig(wxUpdates);
     }
+
+    if (Object.keys(apiUpdates).length > 0) {
+      const current = configManager.getConfig().apiEnv;
+      configManager.updateApiEnv({ ...current, ...apiUpdates });
+    }
     log.success('配置已更新');
 
     // 显示当前配置
     const config = configManager.getTinyConfig();
     const wxConfig = configManager.getWxConfig();
-    logJson(log, { tiny: config, wx: wxConfig }, '当前配置:');
+    const apiEnv = configManager.getConfig().apiEnv;
+    logJson(log, { tiny: config, wx: wxConfig, apiEnv }, '当前配置:');
 
     process.exit(0);
   } catch (error) {

@@ -15,6 +15,15 @@ export function registerSet(program: Command): void {
     .option('--wx-app-id <id>', '设置 WX_APPID')
     .option('--wx-app-secret <key>', '设置 WX_APPSECRET')
     .option('--wx-timeout <ms>', '设置微信请求超时(毫秒)', parseNonNegativeInteger)
+    .option(
+      '--api <key=value>',
+      '设置 API 命令 env（可重复），用于 {{env.KEY}} 模板渲染',
+      (value: string, prev: string[]) => {
+        prev.push(value);
+        return prev;
+      },
+      [],
+    )
     .action(async (options, cmd) => {
       await setCommand({
         quality: options.quality,
@@ -26,6 +35,7 @@ export function registerSet(program: Command): void {
         wxAppId: options.wxAppId,
         wxAppSecret: options.wxAppSecret,
         wxTimeout: options.wxTimeout,
+        apiEnv: options.api,
       });
     });
 }

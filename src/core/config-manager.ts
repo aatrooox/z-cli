@@ -90,6 +90,7 @@ export class ConfigManager {
       return {
         tiny: { ...DEFAULT_CONFIG.tiny, ...loadedConfig.tiny },
         wx: { ...DEFAULT_CONFIG.wx, ...loadedConfig.wx },
+        apiEnv: { ...DEFAULT_CONFIG.apiEnv, ...loadedConfig.apiEnv },
       };
     } catch (error) {
       console.error(`配置文件解析失败，使用默认配置: ${error}`);
@@ -136,6 +137,11 @@ export class ConfigManager {
 
   updateWxConfig(updates: Partial<GlobalConfig['wx']>): void {
     this.config.wx = { ...this.config.wx, ...updates };
+    this.save(this.config);
+  }
+
+  updateApiEnv(env: Record<string, string>): void {
+    this.config.apiEnv = { ...env };
     this.save(this.config);
   }
 

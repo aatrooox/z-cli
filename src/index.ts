@@ -5,6 +5,7 @@ import { Command } from 'commander';
 import { registerConfig } from './cli/register-config.js';
 import { registerSet } from './cli/register-set.js';
 import { registerTiny } from './cli/register-tiny.js';
+import { registerApi } from './cli/register-api.js';
 import { registerWx } from './cli/register-wx.js';
 import { getBinName, getPackageVersion } from './cli/utils.js';
 
@@ -22,6 +23,7 @@ async function main() {
   registerTiny(program);
   registerSet(program);
   registerConfig(program);
+  registerApi(program);
   registerWx(program);
 
   if (process.argv.slice(2).length === 0) {

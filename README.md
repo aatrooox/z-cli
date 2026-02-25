@@ -145,6 +145,67 @@ z wx draft \
 
 ---
 
+## 配置化 HTTP API（api）
+
+> 按 endpoint 名称从配置目录加载配置并发送 HTTP 请求，支持简单模板渲染。
+
+### 配置文件位置
+
+每个 endpoint 对应一个独立 JSON 文件：
+
+- `config/api/<name>.json`
+
+实际落盘目录与 `z config --path` 同级（同一配置目录下的 `api/` 子目录）。例如：
+
+- macOS: `~/Library/Application Support/zzclub-z-cli/api/<name>.json`
+- Linux: `~/.config/zzclub-z-cli/api/<name>.json`（或 `$XDG_CONFIG_HOME/zzclub-z-cli/api/<name>.json`）
+- Windows: `%APPDATA%\\zzclub-z-cli\\api\\<name>.json`
+
+### 配置 schema（最小）
+
+```json
+{
+  "name": "blog-memo",
+  "description": "Create memo",
+  "method": "POST",
+  "url": "https://example.com/api/memo",
+  "headers": {
+    "Authorization": "Bearer {{env.TOKEN}}"
+  },
+  "body": {
+    "content": "{{content}}",
+    "photos": "{{photos}}"
+  }
+}
+```
+
+兼容字段：如果存在 `steps`，只会使用第一步（仅支持单请求）。
+
+### 模板变量
+
+- `{{content}}`：来自 `--content` 或 `--content-file`（file 优先）
+- `{{photos}}`：来自 `--photos` 或 `--photos-file`（file 优先）；若是 JSON 字符串会在 body 中自动解析为 JSON 值
+- `{{env.SOME_KEY}}`：env 注入，优先级：
+  1) `z api ... --env SOME_KEY=...`（可重复）
+  2) `z set --api SOME_KEY=...`（持久化，可重复）
+  3) `process.env.SOME_KEY`
+
+### 使用示例
+
+```bash
+z api blog-memo \
+  --content "hello" \
+  --photos '{"urls":["https://a.com/1.jpg"]}' \
+  --env TOKEN=xxx \
+  --verbose
+
+# 从文件读取
+z api blog-memo --content-file ./memo.txt --photos-file ./photos.json
+
+# 仅打印最终请求
+z api blog-memo --content "hello" --dry-run --verbose
+```
+
 ## 📖 命令列表
 
 ### `tiny` - 图片压缩

@@ -5,6 +5,7 @@ export interface GlobalConfig {
   /** Tiny 命令配置 */
   tiny: TinyConfig;
   wx: WxConfig;
+  apiEnv: Record<string, string>;
 }
 
 /**
@@ -49,6 +50,7 @@ export const DEFAULT_CONFIG: GlobalConfig = {
     appSecret: '',
     timeout: 30000,
   },
+  apiEnv: {},
 };
 
 export const CONFIG_DIR = 'zzclub-z-cli';

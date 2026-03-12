@@ -7,104 +7,44 @@
 [![Bun](https://img.shields.io/badge/Bun-1.0+-F472B6?style=flat&logo=bun)](https://bun.sh)
 [![License](https://img.shields.io/npm/l/@zzclub/z-cli?style=flat&color=18181B)](https://github.com/aatrooox/z-cli/blob/main/LICENSE)
 
-面向 AI Agent 的命令行工具集，集成各类自动化脚本。Skills 只需调用命令即可，无需维护复杂脚本。使用 TypeScript 开发，支持 Node.js 和 Bun。
+面向 AI Agent 的命令行工具集。目标不是堆一堆脚本，而是把可复用的自动化能力收敛到统一 CLI 入口里，让 Skills 只负责描述如何调用。
 
-## 🎯 设计理念
+## 定位
 
-```mermaid
-graph LR
-    A[AI Agent] --> B[Skills]
-    B --> C[SKILL1]
-    B --> D[SKILL2]
-    C --> E[Script1]
-    C --> F[Script2]
-    D --> G[Script1]
-    D --> H[Script2]
-    E --> Z[Z-CLI]
-    F --> Z
-    G --> Z
-    H --> Z
-    
-    style A fill:#e1f5ff
-    style B fill:#fff4e6
-    style C fill:#fff4e6
-    style D fill:#fff4e6
-    style E fill:#fff4e6
-    style F fill:#fff4e6
-    style G fill:#fff4e6
-    style H fill:#fff4e6
-    style Z fill:#e8f5e9
-```
+- Agent 通过 `z` / `zz` / `z-cli` 统一调用能力
+- Skills 只保留意图描述和少量参数映射，不再复制脚本实现
+- 配置持久化到用户目录，命令行参数优先
+- 当前能力同时覆盖通用工具和 zzclub 内部工作流
 
-**核心目标**：将常用自动化脚本封装为 CLI 命令，Skills 描述调用方式即可，Agent 直接执行。
+## 当前命令
 
-**当前命令**：
-- `tiny` - 高性能图片压缩（基于 Sharp）
+| 命令 | 用途 |
+| --- | --- |
+| `tiny` | 压缩单张图片或批量压缩目录图片 |
+| `set` | 持久化默认配置，包括 `tiny`、`wx`、`api` |
+| `config` | 查看配置路径、当前配置，或重置默认配置 |
+| `api` | 读取 `config/api/<name>.json` 并发起模板化 HTTP 请求 |
+| `wx` | 微信公众号草稿工作流，支持 token、素材上传、`news`/`newspic` 草稿 |
+| `cos` | 通过 zzclub 后端申请 STS 后上传图片到腾讯云 COS |
+| `gui` | 调用本机 GUI 自动化脚本，目前支持微信发送消息 |
 
-**未来扩展**：
-- i18n 管理
-- 代码生成
-- 文件批处理
-- ...更多 Agent 能力增强命令
+## 安装
 
-## ✨ 特性
-
-- 🤖 **Agent 优先** - 专为 AI Agent 工作流设计
-- 🔧 **开箱即用** - 无需配置复杂脚本，直接调用命令
-- 📦 **持续扩展** - 后续命令聚焦 Agent 能力增强
-- ⚙️ **灵活配置** - 支持持久化配置，命令行参数优先
-- 💻 **跨平台** - Windows, macOS, Linux 全平台支持
-- 🔧 **TypeScript** - 完整类型支持，可用于 Skills 集成
-
-## 📦 安装
-
-### 使用 Bun（推荐）
-
-Bun 是更快的 JavaScript 运行时，推荐使用。
+### Bun
 
 ```bash
-# 安装 Bun
-curl -fsSL https://bun.sh/install | bash  # macOS/Linux
-# 或
-powershell -c "irm bun.sh/install.ps1 | iex"  # Windows
-
-# 全局安装 z-cli
 bun install -g @zzclub/z-cli
 ```
 
-### 使用 Node.js
+### Node.js
 
 ```bash
-# 要求 Node.js >= 18.18.0
 npm install -g @zzclub/z-cli
-# 或
-pnpm add -g @zzclub/z-cli
-```
-
-## 🚀 快速开始
-
-### 基础用法
-
-```bash
-# 压缩单个图片（默认质量 75）
-z tiny -f ./image.jpg
-
-# 指定压缩质量（1-100，数值越高质量越好）
-z tiny -f ./image.jpg -q 80
-
-# 压缩整个目录
-z tiny -f ./images -r
-
-# 覆盖原文件
-z tiny -f ./image.jpg -o
-
-# 指定输出目录
-z tiny -f ./image.jpg --output ./compressed
 ```
 
 ### 命令别名
 
-支持三种命令别名，完全等价：
+以下三种写法等价：
 
 ```bash
 z tiny -f ./image.jpg
@@ -112,61 +52,182 @@ zz tiny -f ./image.jpg
 z-cli tiny -f ./image.jpg
 ```
 
-## 微信公众号草稿箱（wx）
-
-> 用于把富文本 HTML 片段写入公众号草稿箱（news），并自动上传图片素材、替换图片 URL。
-
-### 创建图文草稿（news）
+## 快速开始
 
 ```bash
-z wx draft \
-  -t "文章标题" \
-  --html-file "/path/to/fragment.html"
+# 1. 查看全部命令
+z --help
+
+# 2. 压缩图片
+z tiny -f ./images -r -q 85
+
+# 3. 查看当前配置
+z config
+
+# 4. 设置默认 wx 账号
+z set --wx-app-id wx123 --wx-app-secret xxx --wx-pat pat-xxx
+
+# 5. 新增第二个 wx 账号并切换为默认
+z set --wx-account brand-b --wx-app-id wx456 --wx-app-secret yyy --wx-pat pat-yyy
+z set --wx-default-account brand-b
 ```
 
-常用参数：
-- `-t, --title <title>`：草稿标题（必需）
-- `--html <html>`：直接传 HTML 片段字符串
-- `--html-file <path>`：从文件读取 HTML 片段（推荐）
-- `--photos <list>`：图片列表（逗号分隔，支持 URL / 本地路径 / dataURL）。不传时会尝试从 HTML 里自动提取 `<img src=...>`。
-
-环境变量（也可用命令行参数覆盖）：
-- `ZZCLUB_PAT`
-- `WX_APPID`
-- `WX_APPSECRET`
-
-示例：从 ZotePad 导出目录创建草稿
-
-```bash
-z wx draft \
-  -t "文章标题" \
-  --html-file "/Users/aatrox/.openclaw/workspace/zotepad-exports/html/my-slug.html"
-```
-
----
-
-## 配置化 HTTP API（api）
-
-> 按 endpoint 名称从配置目录加载配置并发送 HTTP 请求，支持简单模板渲染。
+## 配置
 
 ### 配置文件位置
 
-每个 endpoint 对应一个独立 JSON 文件：
+- Linux: `~/.config/zzclub-z-cli/config.json` 或 `$XDG_CONFIG_HOME/zzclub-z-cli/config.json`
+- macOS: `~/Library/Application Support/zzclub-z-cli/config.json`
+- Windows: `%APPDATA%\zzclub-z-cli\config.json`
 
-- `config/api/<name>.json`
+查看实际路径：
 
-实际落盘目录与 `z config --path` 同级（同一配置目录下的 `api/` 子目录）。例如：
+```bash
+z config --path
+```
+
+### 默认配置结构
+
+```json
+{
+  "tiny": {
+    "quality": 80,
+    "recursive": false,
+    "overwrite": false,
+    "outputDir": null,
+    "verbose": false
+  },
+  "wx": {
+    "baseUrl": "https://zzao.club",
+    "timeout": 30000,
+    "defaultAccount": "default",
+    "accounts": {
+      "default": {
+        "pat": "",
+        "appId": "",
+        "appSecret": ""
+      }
+    }
+  },
+  "apiEnv": {}
+}
+```
+
+### wx 多账号
+
+`wx` 现在按账号名管理凭证：
+
+- `wx.baseUrl` 和 `wx.timeout` 是全局配置
+- `wx.accounts.<name>.pat/appId/appSecret` 是账号级配置
+- `wx.defaultAccount` 决定未传 `--account` 时使用哪个账号
+- 旧版单账号配置会在首次加载时自动迁移到 `wx.accounts.default`
+
+常用命令：
+
+```bash
+# 更新默认账号 default
+z set --wx-app-id wx123 --wx-app-secret secret123 --wx-pat pat123
+
+# 新增第二个账号
+z set --wx-account brand-b --wx-app-id wx456 --wx-app-secret secret456 --wx-pat pat456
+
+# 切换默认账号
+z set --wx-default-account brand-b
+
+# 调用时显式指定账号
+z wx draft --account brand-b -t "标题" --html-file ./fragment.html
+```
+
+`wx` 运行时的凭证优先级：
+
+1. CLI 参数，例如 `z wx draft --account brand-b --app-id ...`
+2. 选中账号在配置文件中的值
+3. 进程环境变量 `ZZCLUB_PAT` / `WX_APPID` / `WX_APPSECRET`
+
+## 命令参考
+
+### `tiny`
+
+压缩单个图片文件，或递归处理整个目录。
+
+```bash
+z tiny --file <path> [--quality <1-100>] [--recursive] [--overwrite] [--output <dir>]
+```
+
+能力：
+
+- 支持 `jpg/jpeg/png/webp`
+- 支持单文件和目录递归
+- 支持覆盖原图或输出到指定目录
+- 输出汇总统计，包括成功数和压缩率
+
+示例：
+
+```bash
+z tiny -f ./photo.jpg -q 80
+z tiny -f ./images -r
+z tiny -f ./images -r --output ./compressed
+z tiny -f ./photo.jpg -o
+```
+
+### `set`
+
+持久化默认配置。命令只负责“写配置”，不会执行业务动作。
+
+```bash
+z set [options]
+```
+
+支持的配置：
+
+- `tiny`: `--quality` `--recursive` `--overwrite` `--output`
+- `wx`: `--wx-account` `--wx-default-account` `--wx-base-url` `--wx-timeout` `--wx-pat` `--wx-app-id` `--wx-app-secret`
+- `api`: `--api KEY=VALUE`，供 `api` 命令模板里的 `{{env.KEY}}` 使用
+
+示例：
+
+```bash
+z set -q 90 -r --output ./dist
+z set --wx-app-id wx123 --wx-app-secret secret123 --wx-pat pat123
+z set --wx-account brand-b --wx-app-id wx456 --wx-app-secret secret456 --wx-pat pat456
+z set --wx-default-account brand-b
+z set --api TOKEN=xxx --api BLOG_ID=123
+```
+
+### `config`
+
+查看配置、配置路径，或重置默认配置。
+
+```bash
+z config
+z config --path
+z config --reset
+```
+
+说明：
+
+- `z config` 会直接打印当前配置 JSON
+- `z config --reset` 会把 `tiny`、`wx`、`apiEnv` 全部重置为默认值
+
+### `api`
+
+按 endpoint 名称读取 `config/api/<name>.json`，渲染模板后发送 HTTP 请求。适合把“固定接口 + 少量动态内容”的工作流沉到配置里。
+
+```bash
+z api <name> [--content <text> | --content-file <path>] [--photos <value> | --photos-file <path>] [--env KEY=VALUE] [--dry-run] [--verbose]
+```
+
+endpoint 文件位置：
 
 - macOS: `~/Library/Application Support/zzclub-z-cli/api/<name>.json`
-- Linux: `~/.config/zzclub-z-cli/api/<name>.json`（或 `$XDG_CONFIG_HOME/zzclub-z-cli/api/<name>.json`）
-- Windows: `%APPDATA%\\zzclub-z-cli\\api\\<name>.json`
+- Linux: `~/.config/zzclub-z-cli/api/<name>.json`
+- Windows: `%APPDATA%\zzclub-z-cli\api\<name>.json`
 
-### 配置 schema（最小）
+最小配置：
 
 ```json
 {
   "name": "blog-memo",
-  "description": "Create memo",
   "method": "POST",
   "url": "https://example.com/api/memo",
   "headers": {
@@ -179,404 +240,182 @@ z wx draft \
 }
 ```
 
-兼容字段：如果存在 `steps`，只会使用第一步（仅支持单请求）。
+模板变量：
 
-### 模板变量
+- `{{content}}`: `--content` / `--content-file`
+- `{{photos}}`: `--photos` / `--photos-file`
+- `{{env.KEY}}`: 来自 `--env KEY=VALUE`、`z set --api KEY=VALUE`、或 `process.env`
 
-- `{{content}}`：来自 `--content` 或 `--content-file`（file 优先）
-- `{{photos}}`：来自 `--photos` 或 `--photos-file`（file 优先）；若是 JSON 字符串会在 body 中自动解析为 JSON 值
-- `{{env.SOME_KEY}}`：env 注入，优先级：
-  1) `z api ... --env SOME_KEY=...`（可重复）
-  2) `z set --api SOME_KEY=...`（持久化，可重复）
-  3) `process.env.SOME_KEY`
+说明：
 
-### 使用示例
+- 如果配置包含 `steps`，当前只使用第一步
+- `--dry-run` 只打印最终请求，不发请求
+- `--photos` 若传 JSON 文本，在 body 中会自动解析成 JSON 值
+
+示例：
 
 ```bash
-z api blog-memo \
-  --content "hello" \
-  --photos '{"urls":["https://a.com/1.jpg"]}' \
-  --env TOKEN=xxx \
-  --verbose
-
-# 从文件读取
+z api blog-memo --content "hello" --photos '{"urls":["https://a.com/1.jpg"]}' --env TOKEN=xxx --verbose
 z api blog-memo --content-file ./memo.txt --photos-file ./photos.json
-
-# 仅打印最终请求
 z api blog-memo --content "hello" --dry-run --verbose
 ```
 
-## 📖 命令列表
+### `wx`
 
-### `tiny` - 图片压缩
+微信公众号草稿工作流。当前支持四个 action：
 
-高性能图片压缩命令，基于 [Sharp](https://sharp.pixelplumbing.com/)（libvips），比传统工具快 4-5 倍。
+- `token`: 获取 `access_token`
+- `upload`: 上传图片素材
+- `draft`: 创建 `news` 草稿，自动上传图片并替换 HTML 中的图片 URL
+- `newspic`: 创建 `newspic` 草稿
 
-**特性**：
-- 多格式支持：JPEG, PNG, WebP
-- 智能算法：自动选择 mozjpeg（JPEG）和 pngquant（PNG）
-- 批量处理：支持递归目录
-
-压缩单个文件或整个目录的图片。
+统一参数：
 
 ```bash
-z tiny [options]
+z wx <action> [--account <name>] [--base-url <url>] [--pat <token>] [--app-id <id>] [--app-secret <secret>] [--timeout <ms>]
 ```
 
-**选项：**
-
-| 选项 | 别名 | 类型 | 默认值 | 说明 |
-|------|------|------|--------|------|
-| `--file <path>` | `-f` | string | - | 要压缩的文件或目录路径（必需） |
-| `--quality <1-100>` | `-q` | number | 75 | 压缩质量，1-100 之间 |
-| `--recursive` | `-r` | boolean | false | 递归处理目录 |
-| `--overwrite` | `-o` | boolean | false | 覆盖原文件 |
-| `--output <dir>` | - | string | - | 指定输出目录 |
-| `--help` | `-h` | - | - | 显示帮助信息 |
-
-**支持的图片格式：**
-- JPEG / JPG (mozjpeg 优化)
-- PNG (pngquant 优化)
-- WebP
-
-**示例：**
+#### `wx token`
 
 ```bash
-# 压缩单个图片，质量 80
-z tiny -f ./photo.jpg -q 80
-
-# 递归压缩目录下所有图片
-z tiny -f ./images -r
-
-# 覆盖原文件
-z tiny -f ./photo.jpg -o
-
-# 输出到指定目录
-z tiny -f ./images -r --output ./dist
-
-# 组合使用
-z tiny -f ./images -r -q 90 --output ./compressed
+z wx token
+z wx token --account brand-b
 ```
 
-**压缩效果示例：**
+#### `wx upload`
 
-```
-✔ 压缩成功: 21.83 KB → 5.88 KB (减少 73.1%)
+`--photos` 支持逗号分隔列表，元素可以是：
 
-╭───────────────────╮
-│                   │
-│  压缩完成         │
-│                   │
-│  总文件数: 5      │
-│  成功: 5          │
-│  失败: 0          │
-│  总原始大小: 2.1 MB │
-│  总压缩后大小: 580 KB │
-│  平均压缩率: 72.4% │
-│                   │
-╰───────────────────╯
-```
-
-### `set` - 更新配置
-
-设置默认配置，影响后续所有命令。
+- 本地文件路径
+- `file://` 路径
+- `http/https` 图片 URL
+- `data:` URL
 
 ```bash
-z set [options]
+z wx upload --photos ./a.jpg,./b.png
+z wx upload --account brand-b --photos https://a.com/cover.jpg
 ```
 
-**选项：**
+#### `wx draft`
 
-| 选项 | 别名 | 类型 | 说明 |
-|------|------|------|------|
-| `--quality <1-100>` | `-q` | number | 设置默认压缩质量 |
-| `--recursive` | `-r` | boolean | 设置默认是否递归 |
-| `--overwrite` | `-o` | boolean | 设置默认是否覆盖 |
-| `--output <dir>` | - | string | 设置默认输出目录 |
-
-**示例：**
+创建 `news` 草稿，要求标题和 HTML 内容。
 
 ```bash
-# 设置默认质量为 90
-z set -q 90
-
-# 设置默认递归处理
-z set -r
-
-# 设置默认覆盖原文件
-z set -o
-
-# 设置默认输出目录
-z set --output ./compressed
-
-# 一次设置多个
-z set -q 85 -r --output ./dist
+z wx draft -t "文章标题" --html-file ./fragment.html
+z wx draft --account brand-b -t "文章标题" --html '<p>Hello</p><img src="./cover.jpg">'
 ```
 
-### `config` - 查看/管理配置
+说明：
 
-查看当前配置或管理配置文件。
+- `--html` / `--html-file` 二选一
+- `--photos` 可显式指定图片列表
+- 如果不传 `--photos`，会从 HTML 里的 Markdown 图片或 `<img src=...>` 自动提取
+- 创建草稿前会先上传图片素材，再把 HTML 中的原始图片 URL 替换成微信素材 URL
+
+#### `wx newspic`
+
+创建 `newspic` 草稿，要求标题和纯内容文本。
 
 ```bash
-z config [options]
+z wx newspic -t "标题" --content "正文"
+z wx newspic -t "标题" --content-file ./content.txt --photos ./01.jpg,./02.jpg
 ```
 
-**选项：**
+说明：
 
-| 选项 | 说明 |
-|------|------|
-| `--path` | 显示配置文件路径 |
-| `--reset` | 重置配置为默认值 |
-| 无参数 | 显示当前配置（JSON 格式） |
+- `--content` / `--content-file` 二选一
+- `--photos` 不传时也会尝试从内容里的图片引用自动提取
 
-**示例：**
+### `cos`
+
+上传图片到腾讯云 COS。流程是：
+
+1. 调用 zzclub 后端接口申请临时 STS
+2. 使用 `cos-nodejs-sdk-v5` 上传到 COS
+3. 输出对象 key 和公网 URL
 
 ```bash
-# 查看当前配置
-z config
-
-# 查看配置文件路径
-z config --path
-
-# 重置为默认配置
-z config --reset
+z cos upload <files...> [--folder <name>] [--base-url <url>] [--public-base-url <url>] [--pat <token>] [--timeout <ms>] [--json]
 ```
 
-**配置文件位置：**
-- Linux: `~/.config/zzclub-z-cli/config.json`（或 `$XDG_CONFIG_HOME/zzclub-z-cli/config.json`）
-- macOS: `~/Library/Application Support/zzclub-z-cli/config.json`
-- Windows: `%APPDATA%\zzclub-z-cli\config.json`
+说明：
 
-**默认配置：**
+- 只支持图片文件：`jpg/jpeg/png/gif/webp`
+- `--folder` 用于传给后端生成子目录
+- `ZZCLUB_PAT` 可来自 CLI、`process.env` 或 `z set --api ZZCLUB_PAT=...`
+- `--json` 输出机器可读结果
 
-```json
-{
-  "tiny": {
-    "quality": 80,
-    "recursive": false,
-    "overwrite": false,
-    "outputDir": null,
-    "verbose": false
-  }
-}
-```
-
-## 🔌 在 Skills 中使用
-
-z-cli 专为 Agent + Skills 工作流设计。Skills 只需描述命令调用方式，Agent 即可执行。
-
-### 架构说明
-
-```
-Agent（决策层）
-  ↓ 调用
-Skill（描述层）
-  ↓ 执行
-z-cli（工具层）
-  ↓ 集成
-各类 Scripts（实现层）
-```
-
-**优势**：
-- Skills 无需维护复杂脚本逻辑
-- 命令版本统一管理
-- Agent 可直接调用，无额外依赖
-
-### 前置要求
-
-确保已安装 Bun 或 Node.js:
+示例：
 
 ```bash
-# 检查 Bun 是否安装
-bun --version
-
-# 如果未安装,安装 Bun(推荐)
-curl -fsSL https://bun.sh/install | bash  # macOS/Linux
-# 或
-powershell -c "irm bun.sh/install.ps1 | iex"  # Windows
+z cos upload ./cover.png
+z cos upload ./01.jpg ./02.jpg --folder wechat
+z cos upload ./cover.png --json
 ```
 
-### 基础用法
+### `gui`
+
+封装本机 GUI 自动化脚本。当前只支持微信发送消息。
 
 ```bash
-# 使用 bunx(推荐)
+z gui wechat --chat <name> [--message <text> | --message-file <path>] [--script <path>] [--json]
+```
+
+说明：
+
+- `z-cli` 不内置 GUI 自动化脚本，只负责统一入口
+- 默认脚本路径是维护者机器的固定路径，不适用于通用环境
+- 运行前仍要满足脚本自身依赖，例如桌面微信已登录、桌面可交互、系统已授予辅助功能权限
+
+示例：
+
+```bash
+z gui wechat --chat "文件传输助手" --message "hello from z-cli"
+z gui wechat --chat "项目群" --message-file ./message.txt --json
+z gui wechat --chat "项目群" --message "hello" --script /path/to/send_wechat.sh
+```
+
+## 在 Skills / Agent 中使用
+
+推荐直接调用包，而不是在 Skill 里复制脚本：
+
+```bash
 bunx @zzclub/z-cli tiny -f ./images -r -q 85
-
-# 或使用 npx(Node.js)
-npx @zzclub/z-cli tiny -f ./images -r -q 85
+bunx @zzclub/z-cli api blog-memo --content-file ./memo.txt
+bunx @zzclub/z-cli wx draft --account brand-b -t "标题" --html-file ./fragment.html
 ```
 
-### 在 Skill 的 skill.md 中使用
+建议：
 
-直接在你的 Skill 说明中添加压缩命令即可:
+- Skill 里只保留意图、前置条件、示例命令
+- 不要在 Skill 中重复实现 `wx` / `api` / `cos` 逻辑
+- 需要凭证时，优先写入 `z set` 配置，再由命令统一读取
 
-```markdown
-## 图片处理流程
+## 开发
 
-1. 下载图片到 `./downloads` 目录
-2. 压缩图片:
-   ```bash
-   bunx @zzclub/z-cli tiny -f ./downloads -r -q 85 --output ./compressed
-   ```
-3. 上传压缩后的图片
-```
-
-### 常用命令
+### 本地运行
 
 ```bash
-# 压缩单个文件
-bunx @zzclub/z-cli tiny -f ./image.jpg -q 80
-
-# 递归压缩目录
-bunx @zzclub/z-cli tiny -f ./images -r -q 85
-
-# 压缩并覆盖原文件
-bunx @zzclub/z-cli tiny -f ./images -r -o
-
-# 压缩到指定目录
-bunx @zzclub/z-cli tiny -f ./images -r --output ./compressed
-
-# 查看帮助
-bunx @zzclub/z-cli --help
-```
-
-### 优势
-
-- ✅ **自动安装依赖** - bunx/npx 会自动下载 z-cli 及其依赖(包括 Sharp)
-- ✅ **无需全局安装** - 每次运行时自动使用最新版本
-- ✅ **简单直接** - 一行命令完成压缩
-
-## 🛠️ 开发
-
-### 克隆仓库
-
-```bash
-git clone https://github.com/aatrooox/z-cli.git
-cd z-cli
-```
-
-### 安装依赖
-
-```bash
-# 使用 Bun（推荐）
-bun install
-
-# 或使用 pnpm
-pnpm install
-```
-
-### 开发模式
-
-```bash
-# 直接运行 TypeScript 源码
 bun run dev
+bun run src/index.ts --help
+```
 
-# 或
-bun run src/index.ts tiny -f ./demo/demo3.jpeg -q 80
+### 类型检查
+
+```bash
+bun run type-check
 ```
 
 ### 构建
 
 ```bash
-# 编译 TypeScript
 bun run build
-
-# 类型检查
-bun run type-check
-```
-
-### 本地测试
-
-```bash
-# 链接到全局
-npm link  # 或 bun link
-
-# 测试命令
-z tiny -f ./demo/demo3.jpeg -q 80
 ```
 
 ### 发布
 
 ```bash
-# 发布补丁版本 (1.0.0 -> 1.0.1)
 bun run release:patch
-
-# 发布次要版本 (1.0.0 -> 1.1.0)
 bun run release:minor
-
-# 发布主要版本 (1.0.0 -> 2.0.0)
 bun run release:major
 ```
-
-## 📊 性能对比
-
-基于 Sharp (libvips) 的性能优势：
-
-| 工具 | 处理 100 张图片 (平均) | 内存占用 |
-|------|------------------------|----------|
-| z-cli (Sharp) | ~2.5s | ~50MB |
-| ImageMagick | ~12s | ~200MB |
-| GraphicsMagick | ~10s | ~180MB |
-
-## 🤝 贡献
-
-欢迎提出新需求或贡献代码！
-
-1. Fork 本仓库
-2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
-3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
-4. 推送到分支 (`git push origin feature/AmazingFeature`)
-5. 提交 Pull Request
-
-## 📝 更新日志
-
-### v1.0.0 (2026-01-20)
-
-**🎉 重大重构 - TypeScript 重写**
-
-- ✅ 完全使用 TypeScript 重写
-- ✅ 简化功能，专注于图片压缩
-- ✅ 移除 Commander.js，使用原生 CLI 实现
-- ✅ 使用 Consola 统一日志输出
-- ✅ 支持 Bun 运行时
-- ✅ 完整的类型定义
-- ❌ 移除 `translate` 命令（i18n 翻译）
-- ❌ 移除 `picgo` 命令（图床上传）
-- ❌ 移除 `i18n` 命令（Vue i18n 提取）
-
-**迁移指南：**
-
-如果你需要旧版本的翻译功能，请使用 v0.8.0：
-```bash
-npm install -g @zzclub/z-cli@0.8.0
-```
-
-或切换到备份分支：
-```bash
-git checkout backup/v0.8.0
-```
-
-## 📄 许可证
-
-[MIT License](./LICENSE) © 2026 aatrox
-
-## 📮 联系方式
-
-- 作者：aatrox
-- GitHub：[@aatrooox](https://github.com/aatrooox)
-- 项目地址：[github.com/aatrooox/z-cli](https://github.com/aatrooox/z-cli)
-- 微信：523748995（定制需求或技术支持）
-
-## ⚠️ 免责声明
-
-任何用户在使用 z-cli 前，请您仔细阅读并透彻理解本声明。您可以选择不使用 z-cli，若您一旦使用 z-cli，您的使用行为即被视为对本声明全部内容的认可和接受。
-
-1. 任何单位或个人因下载使用 z-cli 而产生的任何意外、疏忽、合约毁坏、诽谤、版权或知识产权侵犯及其造成的损失（包括但不限于直接、间接、附带或衍生的损失等），本人不承担任何法律责任。
-
-2. 任何单位或个人不得在未经本团队书面授权的情况下对 z-cli 工具本身申请相关的知识产权。
-
-3. 如果本声明的任何部分被认为无效或不可执行，则该部分将被解释为反映本人的初衷，其余部分仍具有完全效力。不可执行的部分声明，并不构成我放弃执行该声明的权利。
-
----
-
-**⭐ 如果这个工具对你有帮助，欢迎给个 Star！**

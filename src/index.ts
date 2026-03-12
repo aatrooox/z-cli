@@ -7,6 +7,8 @@ import { registerSet } from './cli/register-set.js';
 import { registerTiny } from './cli/register-tiny.js';
 import { registerApi } from './cli/register-api.js';
 import { registerWx } from './cli/register-wx.js';
+import { registerCos } from './cli/register-cos.js';
+import { registerGui } from './cli/register-gui.js';
 import { getBinName, getPackageVersion } from './cli/utils.js';
 
 async function main() {
@@ -25,6 +27,8 @@ async function main() {
   registerConfig(program);
   registerApi(program);
   registerWx(program);
+  registerCos(program);
+  registerGui(program);
 
   if (process.argv.slice(2).length === 0) {
     program.help({ error: true });

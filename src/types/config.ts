@@ -26,11 +26,23 @@ export interface TinyConfig {
 
 export interface WxConfig {
   baseUrl: string;
+  timeout: number;
+  defaultAccount: string;
+  accounts: Record<string, WxAccountConfig>;
+}
+
+export interface WxAccountConfig {
   pat: string;
   appId: string;
   appSecret: string;
-  timeout: number;
 }
+
+export const DEFAULT_WX_ACCOUNT_NAME = 'default';
+export const DEFAULT_WX_ACCOUNT_CONFIG: WxAccountConfig = {
+  pat: '',
+  appId: '',
+  appSecret: '',
+};
 
 /**
  * 默认配置
@@ -45,10 +57,11 @@ export const DEFAULT_CONFIG: GlobalConfig = {
   },
   wx: {
     baseUrl: 'https://zzao.club',
-    pat: '',
-    appId: '',
-    appSecret: '',
     timeout: 30000,
+    defaultAccount: DEFAULT_WX_ACCOUNT_NAME,
+    accounts: {
+      [DEFAULT_WX_ACCOUNT_NAME]: { ...DEFAULT_WX_ACCOUNT_CONFIG },
+    },
   },
   apiEnv: {},
 };

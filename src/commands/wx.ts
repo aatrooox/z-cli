@@ -2,6 +2,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { basename, extname } from 'node:path';
 import { ConfigManager } from '../core/config-manager.js';
 import { CliError, createLogger, logFatal, logJson, logStep } from '../core/logger.js';
+import { DEFAULT_WX_ACCOUNT_NAME } from '../types/config.js';
 
 const TOKEN_PATH = '/api/v1/wx/cgi-bin/token';
 const MATERIAL_PATH = '/api/v1/wx/cgi-bin/material/add_material';
@@ -30,6 +31,7 @@ const EXTENSION_CONTENT_TYPES = new Map<string, string>([
 
 interface WxCliOptions {
   action?: string;
+  account?: string;
   baseUrl?: string;
   title?: string;
   html?: string;
@@ -114,43 +116,56 @@ export async function wxCommand(options: WxCliOptions): Promise<void> {
 }
 
 function resolveBaseUrl(value?: string): string {
-  const base = requireValue('wx.baseUrl', value);
+  const base = requireValue('wx.baseUrl', value, {
+    fix: ['z set --wx-base-url <url>', 'z wx --base-url <url>'],
+  });
   return base.endsWith('/') ? base.slice(0, -1) : base;
 }
 
-function resolveEnv(name: string, cliValue?: string, configValue?: string): string | undefined {
-  return cliValue ?? process.env[name] ?? configValue;
+function normalizeWxAccountName(value: string, optionName: string): string {
+  const account = value.trim();
+  if (!account) {
+    throw new CliError(`${optionName} 不能为空`);
+  }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(account)) {
+    throw new CliError(`${optionName} 非法: ${value}`, {
+      details: ['仅允许字母、数字、下划线、点、连字符'],
+    });
+  }
+  return account;
 }
 
-function requireValue(name: string, value?: string): string {
+function requireValue(
+  name: string,
+  value: string | undefined,
+  options?: { fix?: string[]; details?: string[] },
+): string {
   if (!value) {
-    const fixFlag = getConfigFixFlag(name);
-    const envFix = `设置环境变量 ${name}`;
-    if (!fixFlag) {
-      throw new CliError(`缺少必要配置: ${name}`, {
-        fix: [envFix],
-      });
-    }
-
     throw new CliError(`缺少必要配置: ${name}`, {
-      fix: [
-        `z set ${fixFlag} <value>`,
-        `z wx ${fixFlag.replace('--wx-', '--')} <value>`,
-        envFix,
-      ],
+      fix: options?.fix,
+      details: options?.details,
     });
   }
   return value;
 }
 
-function getConfigFixFlag(name: string): string {
-  const fixFlags: Record<string, string> = {
-    ZZCLUB_PAT: '--wx-pat',
-    WX_APPID: '--wx-app-id',
-    WX_APPSECRET: '--wx-app-secret',
-    'wx.baseUrl': '--wx-base-url',
-  };
-  return fixFlags[name] || '';
+function getWxCredentialFix(name: 'ZZCLUB_PAT' | 'WX_APPID' | 'WX_APPSECRET', accountName: string): string[] {
+  const suffixMap = {
+    ZZCLUB_PAT: '--wx-pat <token>',
+    WX_APPID: '--wx-app-id <id>',
+    WX_APPSECRET: '--wx-app-secret <secret>',
+  } as const;
+  const cliMap = {
+    ZZCLUB_PAT: '--pat <token>',
+    WX_APPID: '--app-id <id>',
+    WX_APPSECRET: '--app-secret <secret>',
+  } as const;
+
+  return [
+    `z set --wx-account ${accountName} ${suffixMap[name]}`,
+    `z wx --account ${accountName} ${cliMap[name]}`,
+    `设置环境变量 ${name}`,
+  ];
 }
 
 function resolveTimeout(defaultTimeout: number, configTimeout: number, override?: number): number {
@@ -166,11 +181,28 @@ function resolveTimeout(defaultTimeout: number, configTimeout: number, override?
 function getWxRuntimeConfig(options: WxCliOptions) {
   const configManager = new ConfigManager();
   const wxConfig = configManager.getWxConfig();
+  const accountName = options.account
+    ? normalizeWxAccountName(options.account, '--account')
+    : wxConfig.defaultAccount || DEFAULT_WX_ACCOUNT_NAME;
+  const accountConfig = wxConfig.accounts[accountName];
   const baseUrl = resolveBaseUrl(options.baseUrl ?? wxConfig.baseUrl);
-  const pat = requireValue('ZZCLUB_PAT', resolveEnv('ZZCLUB_PAT', options.pat, wxConfig.pat));
-  const appId = requireValue('WX_APPID', resolveEnv('WX_APPID', options.appId, wxConfig.appId));
-  const appSecret = requireValue('WX_APPSECRET', resolveEnv('WX_APPSECRET', options.appSecret, wxConfig.appSecret));
-  return { baseUrl, pat, appId, appSecret, timeout: wxConfig.timeout };
+  const pat = requireValue('ZZCLUB_PAT', options.pat ?? accountConfig?.pat ?? process.env.ZZCLUB_PAT, {
+    fix: getWxCredentialFix('ZZCLUB_PAT', accountName),
+    details: accountConfig ? [`当前账号: ${accountName}`] : [`当前账号: ${accountName}（未配置）`],
+  });
+  const appId = requireValue('WX_APPID', options.appId ?? accountConfig?.appId ?? process.env.WX_APPID, {
+    fix: getWxCredentialFix('WX_APPID', accountName),
+    details: accountConfig ? [`当前账号: ${accountName}`] : [`当前账号: ${accountName}（未配置）`],
+  });
+  const appSecret = requireValue(
+    'WX_APPSECRET',
+    options.appSecret ?? accountConfig?.appSecret ?? process.env.WX_APPSECRET,
+    {
+      fix: getWxCredentialFix('WX_APPSECRET', accountName),
+      details: accountConfig ? [`当前账号: ${accountName}`] : [`当前账号: ${accountName}（未配置）`],
+    },
+  );
+  return { accountName, baseUrl, pat, appId, appSecret, timeout: wxConfig.timeout };
 }
 
 function parsePhotos(value?: string): string[] {

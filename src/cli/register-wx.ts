@@ -4,6 +4,7 @@ import { parseNonNegativeInteger } from './utils.js';
 
 function applyWxCommonOptions(cmd: Command): Command {
   return cmd
+    .option('--account <name>', '微信账号名（默认使用 config.wx.defaultAccount）')
     .option('--base-url <url>', '接口基础地址 (默认: config.wx.baseUrl / https://zzao.club)')
     .option('--pat <token>', 'ZZCLUB_PAT (从 https://zzao.club 中获取的 PAT)')
     .option('--app-id <id>', 'WX_APPID (从公众号后台获取的 AppID)')
@@ -21,6 +22,7 @@ export function registerWx(program: Command): void {
       .action(async options => {
         await wxCommand({
           action: 'token',
+          account: options.account,
           baseUrl: options.baseUrl,
           pat: options.pat,
           appId: options.appId,
@@ -38,6 +40,7 @@ export function registerWx(program: Command): void {
       .action(async options => {
         await wxCommand({
           action: 'upload',
+          account: options.account,
           baseUrl: options.baseUrl,
           photos: options.photos,
           pat: options.pat,
@@ -63,6 +66,7 @@ export function registerWx(program: Command): void {
         const parentOpts = (command?.parent as any)?.opts?.() || {};
         await wxCommand({
           action: 'draft',
+          account: options.account ?? parentOpts.account,
           baseUrl: options.baseUrl ?? parentOpts.baseUrl,
           title: options.title ?? parentOpts.title,
           html: options.html ?? parentOpts.html,
@@ -88,6 +92,7 @@ export function registerWx(program: Command): void {
         const parentOpts = (command?.parent as any)?.opts?.() || {};
         await wxCommand({
           action: 'newspic',
+          account: options.account ?? parentOpts.account,
           baseUrl: options.baseUrl ?? parentOpts.baseUrl,
           title: options.title ?? parentOpts.title,
           content: options.content ?? parentOpts.content,
@@ -117,6 +122,7 @@ export function registerWx(program: Command): void {
       }
       await wxCommand({
         action,
+        account: options.account,
         baseUrl: options.baseUrl,
         title: options.title,
         html: options.html,

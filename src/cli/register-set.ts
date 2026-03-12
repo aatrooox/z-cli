@@ -10,10 +10,12 @@ export function registerSet(program: Command): void {
     .option('-r, --recursive', '设置默认递归选项')
     .option('-o, --overwrite', '设置默认覆盖选项')
     .option('--output <dir>', '设置默认输出目录')
+    .option('--wx-account <name>', '指定要写入的微信账号名（默认使用当前 default）')
+    .option('--wx-default-account <name>', '设置默认微信账号')
     .option('--wx-base-url <url>', '设置微信接口基础地址')
-    .option('--wx-pat <token>', '设置 ZZCLUB_PAT')
-    .option('--wx-app-id <id>', '设置 WX_APPID')
-    .option('--wx-app-secret <key>', '设置 WX_APPSECRET')
+    .option('--wx-pat <token>', '设置当前微信账号的 ZZCLUB_PAT')
+    .option('--wx-app-id <id>', '设置当前微信账号的 WX_APPID')
+    .option('--wx-app-secret <key>', '设置当前微信账号的 WX_APPSECRET')
     .option('--wx-timeout <ms>', '设置微信请求超时(毫秒)', parseNonNegativeInteger)
     .option(
       '--api <key=value>',
@@ -30,6 +32,8 @@ export function registerSet(program: Command): void {
         recursive: booleanOptionToUndefined(options.recursive, cmd, 'recursive'),
         overwrite: booleanOptionToUndefined(options.overwrite, cmd, 'overwrite'),
         output: options.output,
+        wxAccount: options.wxAccount,
+        wxDefaultAccount: options.wxDefaultAccount,
         wxBaseUrl: options.wxBaseUrl,
         wxPat: options.wxPat,
         wxAppId: options.wxAppId,

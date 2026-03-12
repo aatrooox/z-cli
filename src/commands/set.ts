@@ -6,12 +6,25 @@ export interface SetCliOptions {
   recursive?: boolean;
   overwrite?: boolean;
   output?: string;
+  wxAccount?: string;
+  wxDefaultAccount?: string;
   wxBaseUrl?: string;
   wxPat?: string;
   wxAppId?: string;
   wxAppSecret?: string;
   wxTimeout?: number;
   apiEnv?: string[];
+}
+
+function normalizeWxAccountName(value: string, optionName: string): string {
+  const account = value.trim();
+  if (!account) {
+    throw new Error(`${optionName} 不能为空`);
+  }
+  if (!/^[a-zA-Z0-9_.-]+$/.test(account)) {
+    throw new Error(`${optionName} 非法: ${value}（仅允许字母、数字、下划线、点、连字符）`);
+  }
+  return account;
 }
 
 /**
@@ -21,9 +34,17 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
   try {
     const log = createLogger('set');
     const configManager = new ConfigManager();
+    const currentWxConfig = configManager.getWxConfig();
     const tinyUpdates: Record<string, unknown> = {};
-    const wxUpdates: Record<string, unknown> = {};
+    const wxGlobalUpdates: Record<string, unknown> = {};
+    const wxAccountUpdates: Record<string, string> = {};
     const apiUpdates: Record<string, string> = {};
+    const targetWxAccount = options.wxAccount
+      ? normalizeWxAccountName(options.wxAccount, '--wx-account')
+      : currentWxConfig.defaultAccount;
+    const nextDefaultWxAccount = options.wxDefaultAccount
+      ? normalizeWxAccountName(options.wxDefaultAccount, '--wx-default-account')
+      : undefined;
 
     for (const raw of options.apiEnv ?? []) {
       const idx = raw.indexOf('=');
@@ -61,19 +82,19 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
     }
 
     if (options.wxBaseUrl !== undefined) {
-      wxUpdates.baseUrl = options.wxBaseUrl;
+      wxGlobalUpdates.baseUrl = options.wxBaseUrl;
     }
 
     if (options.wxPat !== undefined) {
-      wxUpdates.pat = options.wxPat;
+      wxAccountUpdates.pat = options.wxPat;
     }
 
     if (options.wxAppId !== undefined) {
-      wxUpdates.appId = options.wxAppId;
+      wxAccountUpdates.appId = options.wxAppId;
     }
 
     if (options.wxAppSecret !== undefined) {
-      wxUpdates.appSecret = options.wxAppSecret;
+      wxAccountUpdates.appSecret = options.wxAppSecret;
     }
 
     if (options.wxTimeout !== undefined) {
@@ -81,10 +102,16 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
         log.error('微信请求超时必须为非负数字');
         process.exit(1);
       }
-      wxUpdates.timeout = options.wxTimeout;
+      wxGlobalUpdates.timeout = options.wxTimeout;
     }
 
-    if (Object.keys(tinyUpdates).length === 0 && Object.keys(wxUpdates).length === 0 && Object.keys(apiUpdates).length === 0) {
+    if (
+      Object.keys(tinyUpdates).length === 0 &&
+      Object.keys(wxGlobalUpdates).length === 0 &&
+      Object.keys(wxAccountUpdates).length === 0 &&
+      !nextDefaultWxAccount &&
+      Object.keys(apiUpdates).length === 0
+    ) {
       log.warn('没有提供任何配置更新');
       process.exit(0);
     }
@@ -93,8 +120,20 @@ export async function setCommand(options: SetCliOptions): Promise<void> {
       configManager.updateTinyConfig(tinyUpdates);
     }
 
-    if (Object.keys(wxUpdates).length > 0) {
-      configManager.updateWxConfig(wxUpdates);
+    if (Object.keys(wxGlobalUpdates).length > 0) {
+      configManager.updateWxConfig(wxGlobalUpdates);
+    }
+
+    if (Object.keys(wxAccountUpdates).length > 0) {
+      configManager.updateWxAccount(targetWxAccount, wxAccountUpdates);
+    }
+
+    if (nextDefaultWxAccount) {
+      if (!configManager.getWxConfig().accounts[nextDefaultWxAccount]) {
+        log.error(`微信账号不存在: ${nextDefaultWxAccount}`);
+        process.exit(1);
+      }
+      configManager.setDefaultWxAccount(nextDefaultWxAccount);
     }
 
     if (Object.keys(apiUpdates).length > 0) {
